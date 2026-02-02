@@ -1,7 +1,6 @@
 package com.fnavas.BlogEngine.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -12,6 +11,11 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @Getter @Setter
 public abstract class BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
