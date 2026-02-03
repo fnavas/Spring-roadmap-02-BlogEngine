@@ -8,8 +8,8 @@ import lombok.Setter;
 @Entity
 @Getter @Setter @NoArgsConstructor
 public class Comment extends BaseEntity {
-
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Lob
+    @Column(nullable = false)
     private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
