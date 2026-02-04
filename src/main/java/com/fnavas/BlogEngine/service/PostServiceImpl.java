@@ -2,6 +2,7 @@ package com.fnavas.BlogEngine.service;
 
 import com.fnavas.BlogEngine.dto.PostResponse;
 import com.fnavas.BlogEngine.entity.Post;
+import com.fnavas.BlogEngine.exception.PostNotFoundException;
 import com.fnavas.BlogEngine.mapper.PostMapper;
 import com.fnavas.BlogEngine.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +27,10 @@ public class PostServiceImpl implements PostService {
     public List<PostResponse> getAllPosts() {
         log.info("[getAllPosts]-Service request to get all posts");
         List<Post> posts = postRepository.findAll();
+        log.debug("[getAllPosts]-Service get all posts: {}", posts);
         return posts.stream()
                 .map(postMapper::toResponse)
                 .toList();
-
     }
 
     @Override
@@ -37,7 +38,7 @@ public class PostServiceImpl implements PostService {
         log.info("[getPostById]-Service request to get post by id");
         log.debug("[getPostById]-Service request to get post by id: {}", id);
         Post post = postRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Post not found with id: " + id)
+                () -> new PostNotFoundException("Post not found with id: " + id)
         );
         return postMapper.toResponse(post);
     }
