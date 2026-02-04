@@ -31,4 +31,14 @@ public class PostServiceImpl implements PostService {
                 .toList();
 
     }
+
+    @Override
+    public PostResponse getPostById(Long id) {
+        log.info("[getPostById]-Service request to get post by id");
+        log.debug("[getPostById]-Service request to get post by id: {}", id);
+        Post post = postRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Post not found with id: " + id)
+        );
+        return postMapper.toResponse(post);
+    }
 }
