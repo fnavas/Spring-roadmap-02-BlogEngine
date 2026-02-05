@@ -48,6 +48,7 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(id).orElseThrow(
                 () -> new PostNotFoundException("Post not found with id: " + id)
         );
+        log.debug("[getPostById]-Service get post by id: {}", post);
         return postMapper.toResponse(post);
     }
 
@@ -64,6 +65,7 @@ public class PostServiceImpl implements PostService {
         Post post = postMapper.toEntity(postRequest);
         post.setAuthor(author);
         Post savedPost = postRepository.save(post);
+        log.info("[createPost]-Service post created successfully");
         log.debug("[createPost]-Service post created successfully with id: {}", savedPost.getId());
         return postMapper.toResponse(savedPost);
     }

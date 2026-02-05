@@ -12,6 +12,4 @@ public interface PostMapper {
     public PostResponse toResponse(Post post);
 
     public Post toEntity(PostCreateRequest postCreateRequest);
-
-    public UserResponse toResponse(User user);
 }
