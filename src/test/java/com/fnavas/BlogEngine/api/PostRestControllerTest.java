@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -29,11 +28,14 @@ class PostRestControllerTest {
     @MockitoBean
     private PostService postService;
 
+    private PostResponse samplepostResponse(){
+        return new PostResponse(1L, "Title", "Content", null,null);
+    }
+
     @Test
     void getAllPosts_shouldReturnsOk() throws Exception {
-        PostResponse postResponse = new PostResponse(
-                1L, "Title", "Content", null,null);
-        Mockito.when(postService.getAllPosts()).thenReturn(List.of(postResponse));
+        PostResponse mockPostResponse = samplepostResponse();
+        Mockito.when(postService.getAllPosts()).thenReturn(List.of(mockPostResponse));
 
         mockMvc.perform(get("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -42,5 +44,19 @@ class PostRestControllerTest {
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].title").value("Title"))
                 .andExpect(jsonPath("$[0].content").value("Content"));
+    }
+
+    @Test
+    void getPostById_shouldReturnsOk() throws Exception {
+        Long id = 1L;
+        PostResponse mockPostResponse = samplepostResponse();
+        Mockito.when(postService.getPostById(id)).thenReturn(mockPostResponse);
+
+        mockMvc.perform(get("/api/v1/posts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.title").value("Title"))
+                .andExpect(jsonPath("$.content").value("Content"));
     }
 }
