@@ -4,7 +4,7 @@ import com.fnavas.BlogEngine.entity.Role;
 
 public record UserResponse(
         Long id,
-        String Username,
+        String username,
         Role role
 ){
 }

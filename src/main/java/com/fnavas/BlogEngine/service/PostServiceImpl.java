@@ -1,11 +1,17 @@
 package com.fnavas.BlogEngine.service;
 
+import com.fnavas.BlogEngine.dto.PostCreateRequest;
 import com.fnavas.BlogEngine.dto.PostResponse;
 import com.fnavas.BlogEngine.entity.Post;
+import com.fnavas.BlogEngine.entity.Role;
+import com.fnavas.BlogEngine.entity.User;
 import com.fnavas.BlogEngine.exception.PostNotFoundException;
 import com.fnavas.BlogEngine.mapper.PostMapper;
 import com.fnavas.BlogEngine.repository.PostRepository;
+import com.fnavas.BlogEngine.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,10 +21,12 @@ import java.util.List;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
     private final PostMapper postMapper;
 
-    public PostServiceImpl(PostRepository postRepository, PostMapper postMapper) {
+    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository , PostMapper postMapper) {
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
         this.postMapper = postMapper;
     }
 
@@ -41,5 +49,22 @@ public class PostServiceImpl implements PostService {
                 () -> new PostNotFoundException("Post not found with id: " + id)
         );
         return postMapper.toResponse(post);
+    }
+
+    @Override
+    public PostResponse createPost(PostCreateRequest postRequest) {
+        log.info("[createPost]-Service request to create post");
+        log.debug("[createPost]-Service request to create post: {}", postRequest);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        log.debug("[createPost]-Service username : {}", username);
+        User author = userRepository.findByUsername(username)
+               .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+        log.debug("[createPost]-Service author : {}", author);
+        Post post = postMapper.toEntity(postRequest);
+        post.setAuthor(author);
+        Post savedPost = postRepository.save(post);
+        log.debug("[createPost]-Service post created successfully with id: {}", savedPost.getId());
+        return postMapper.toResponse(savedPost);
     }
 }

@@ -1,13 +1,11 @@
 package com.fnavas.BlogEngine.api;
 
+import com.fnavas.BlogEngine.dto.PostCreateRequest;
 import com.fnavas.BlogEngine.dto.PostResponse;
 import com.fnavas.BlogEngine.service.PostService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,5 +31,12 @@ public class PostRestController {
         log.info("[getPostById]-RestController request to get post by id");
         log.debug("[getPostById]-RestController request to get post by id: {}", id);
         return ResponseEntity.ok().body(postService.getPostById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<PostResponse> createPost(@RequestBody PostCreateRequest postRequest) {
+        log.info("[createPost]-RestController request to create a new post");
+        log.debug("[createPost]-RestController request to create a new post: {}", postRequest);
+        return ResponseEntity.ok().body(postService.createPost(postRequest));
     }
 }
