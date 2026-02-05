@@ -1,31 +1,37 @@
 package com.fnavas.BlogEngine.service;
 
+import com.fnavas.BlogEngine.dto.PostCreateRequest;
 import com.fnavas.BlogEngine.dto.PostResponse;
 import com.fnavas.BlogEngine.entity.Post;
+import com.fnavas.BlogEngine.entity.User;
 import com.fnavas.BlogEngine.exception.PostNotFoundException;
 import com.fnavas.BlogEngine.mapper.PostMapper;
 import com.fnavas.BlogEngine.repository.PostRepository;
+import com.fnavas.BlogEngine.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceImplTest {
 
     @Mock
     private PostRepository postRepository;
-
+    @Mock
+    UserRepository userRepository;
     @Mock
     private PostMapper postMapper;
 
@@ -85,5 +91,35 @@ class PostServiceImplTest {
 
         assertEquals("Post not found with id: " +  id, exception.getMessage());
         verify(postRepository, Mockito.times(1)).findById(id);
+    }
+
+    @Test
+    void createPost_returnPostResponse() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("admin");
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        Post mockPost = samplePost();
+        User mockUser = mock(User.class);
+        PostCreateRequest mockRequest = new PostCreateRequest(mockPost.getTitle(), mockPost.getContent());
+        PostResponse mockResponse = samplePostResponse();
+
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(mockUser));
+        when(postMapper.toEntity(mockRequest)).thenReturn(mockPost);
+        when(postRepository.save(any(Post.class))).thenReturn(mockPost);
+        when(postMapper.toResponse(any(Post.class))).thenReturn(mockResponse);
+
+        PostResponse response = postService.createPost(mockRequest);
+
+        assertNotNull(response);
+        assertEquals(mockResponse.id(), response.id());
+        assertEquals(mockResponse.title(), response.title());
+        assertEquals(mockResponse.content(), response.content());
+
+        verify(postRepository, times(1)).save(any(Post.class));
+        verify(postMapper, times(1)).toResponse(any(Post.class));
     }
 }
