@@ -119,7 +119,45 @@ class PostServiceImplTest {
         assertEquals(mockResponse.title(), response.title());
         assertEquals(mockResponse.content(), response.content());
 
+        verify(userRepository, times(1)).findByUsername("admin");
+        verify(postMapper, times(1)).toEntity(mockRequest);
         verify(postRepository, times(1)).save(any(Post.class));
         verify(postMapper, times(1)).toResponse(any(Post.class));
+    }
+
+    @Test
+    void updatePost_returnPostResponse() {
+        Long id = 1L;
+        Post mockPost = samplePost();
+        PostCreateRequest mockRequest = new PostCreateRequest("Updated Title", "Updated Content");
+        PostResponse mockResponse = new PostResponse(id, "Updated Title", "Updated Content", null, null);
+
+        when(postRepository.findById(id)).thenReturn(Optional.of(mockPost));
+        when(postRepository.save(any(Post.class))).thenReturn(mockPost);
+        when(postMapper.toResponse(any(Post.class))).thenReturn(mockResponse);
+
+        PostResponse response = postService.updatePost(id, mockRequest);
+
+        assertNotNull(response);
+        assertEquals(mockResponse.id(), response.id());
+        assertEquals(mockResponse.title(), response.title());
+        assertEquals(mockResponse.content(), response.content());
+
+        verify(postRepository, times(1)).findById(id);
+        verify(postRepository, times(1)).save(any(Post.class));
+        verify(postMapper, times(1)).toResponse(any(Post.class));
+    }
+
+    @Test
+    void updatePost_notFound_returnPostNotFoundException() {
+        Long id = 1L;
+        PostCreateRequest mockRequest = new PostCreateRequest("Updated Title", "Updated Content");
+        when(postRepository.findById(id)).thenReturn(Optional.empty());
+
+        PostNotFoundException exception = assertThrows(
+                PostNotFoundException.class, () -> postService.updatePost(id, mockRequest));
+
+        assertEquals("Post not found with id: " + id, exception.getMessage());
+        verify(postRepository, times(1)).findById(id);
     }
 }

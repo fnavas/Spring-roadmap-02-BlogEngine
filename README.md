@@ -14,4 +14,5 @@ This is a secure RESTful API for a blogging platform. Building upon the basics o
 * Spring Security | JWT
 * Hibernate (JPA) | MySQL
 * Maven | Lombok
+* JUnit 5 | Mockito
 * Postman | Swagger UI

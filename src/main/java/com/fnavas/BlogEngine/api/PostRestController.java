@@ -5,6 +5,7 @@ import com.fnavas.BlogEngine.dto.PostResponse;
 import com.fnavas.BlogEngine.service.PostService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,9 +35,18 @@ public class PostRestController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostResponse> createPost(@RequestBody PostCreateRequest postRequest) {
         log.info("[createPost]-RestController request to create a new post");
         log.debug("[createPost]-RestController request to create a new post: {}", postRequest);
         return ResponseEntity.ok().body(postService.createPost(postRequest));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostCreateRequest postRequest) {
+        log.info("[updatePost]-RestController request to update post by id");
+        log.debug("[updatePost]-RestController request to update post by id: {}, {}", id, postRequest);
+        return ResponseEntity.ok().body(postService.updatePost(id, postRequest));
     }
 }

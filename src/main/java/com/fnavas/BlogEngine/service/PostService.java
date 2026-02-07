@@ -9,4 +9,5 @@ public interface PostService {
     public List<PostResponse> getAllPosts();
     public PostResponse getPostById(Long id);
     public PostResponse createPost(PostCreateRequest postRequest);
+    public PostResponse updatePost(Long id, PostCreateRequest postRequest);
 }
