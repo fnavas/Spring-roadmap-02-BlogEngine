@@ -72,16 +72,6 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse updatePost(Long id, PostCreateRequest postRequest) {
-        log.info("[updatePost]-Service request to update post");
-        log.debug("[updatePost]-Service request to update post: {}, {}", id, postRequest);
-        Post existingPost = postRepository.findById(id).orElseThrow(
-                () -> new PostNotFoundException("Post not found with id: " + id)
-        );
-        existingPost.setTitle(postRequest.title());
-        existingPost.setContent(postRequest.content());
-        Post updatedPost = postRepository.save(existingPost);
-        log.info("[updatePost]-Service post updated successfully");
-        log.debug("[updatePost]-Service post updated successfully with id: {}", updatedPost.getId());
-        return postMapper.toResponse(updatedPost);
+        return null;
     }
 }
