@@ -43,7 +43,7 @@ public class PostRestController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostCreateRequest postRequest) {
         log.info("[updatePost]-RestController request to update post by id");
         log.debug("[updatePost]-RestController request to update post by id: {}, {}", id, postRequest);

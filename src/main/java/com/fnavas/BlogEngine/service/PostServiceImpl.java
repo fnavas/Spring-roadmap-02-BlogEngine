@@ -6,6 +6,7 @@ import com.fnavas.BlogEngine.entity.Post;
 import com.fnavas.BlogEngine.entity.Role;
 import com.fnavas.BlogEngine.entity.User;
 import com.fnavas.BlogEngine.exception.PostNotFoundException;
+import com.fnavas.BlogEngine.exception.UnauthorizedException;
 import com.fnavas.BlogEngine.mapper.PostMapper;
 import com.fnavas.BlogEngine.repository.PostRepository;
 import com.fnavas.BlogEngine.repository.UserRepository;
@@ -79,12 +80,14 @@ public class PostServiceImpl implements PostService {
         );
         log.debug("[updatePost]-Service post to update: {}", post);
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        log.debug("[updatePost]-Service isAdmin: {}", isAdmin);
         boolean isAuthor = post.getAuthor().getUsername().equals(SecurityContextHolder.getContext()
                 .getAuthentication().getName());
+        log.debug("[updatePost]-Service isAuthor: {}", isAuthor);
         if (!isAdmin && !isAuthor) {
             log.warn("[updatePost]-Service unauthorized attempt to update post with id: {}", id);
-            throw new RuntimeException("Unauthorized to update this post");
+            throw new UnauthorizedException("Unauthorized to update this post");
         }
         post.setTitle(postRequest.title());
         post.setContent(postRequest.content());
