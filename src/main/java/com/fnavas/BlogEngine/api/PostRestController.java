@@ -35,7 +35,7 @@ public class PostRestController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<PostResponse> createPost(@RequestBody PostCreateRequest postRequest) {
         log.info("[createPost]-RestController request to create a new post");
         log.debug("[createPost]-RestController request to create a new post: {}", postRequest);

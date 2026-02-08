@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> **Work in Progress (WIP):** This repository is currently under active development. The code, documentation, and features are not in their final state and may change significantly at any time.
+
+# 🚧🚧 Work in Progress 🚧🚧
+
 # Blog Engine API (Spring Roadmap #02)
 
 ## 📌 Project Overview

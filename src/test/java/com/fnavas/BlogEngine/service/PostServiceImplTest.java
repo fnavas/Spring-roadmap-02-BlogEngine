@@ -95,7 +95,7 @@ class PostServiceImplTest {
     }
 
     @Test
-    void createPost_returnPostResponse() {
+    void createPost_adminRole_returnPostResponse() {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getName()).thenReturn("admin");
 
@@ -121,6 +121,38 @@ class PostServiceImplTest {
         assertEquals(mockResponse.content(), response.content());
 
         verify(userRepository, times(1)).findByUsername("admin");
+        verify(postMapper, times(1)).toEntity(mockRequest);
+        verify(postRepository, times(1)).save(any(Post.class));
+        verify(postMapper, times(1)).toResponse(any(Post.class));
+    }
+
+    @Test
+    void createPost_userRole_returnPostResponse() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("user");
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        Post mockPost = samplePost();
+        User mockUser = mock(User.class);
+        PostCreateRequest mockRequest = new PostCreateRequest(mockPost.getTitle(), mockPost.getContent());
+        PostResponse mockResponse = samplePostResponse();
+
+        when(userRepository.findByUsername("user")).thenReturn(Optional.of(mockUser));
+        when(postMapper.toEntity(mockRequest)).thenReturn(mockPost);
+        when(postRepository.save(any(Post.class))).thenReturn(mockPost);
+        when(postMapper.toResponse(any(Post.class))).thenReturn(mockResponse);
+
+        PostResponse response = postService.createPost(mockRequest);
+
+        assertNotNull(response);
+        assertEquals(mockResponse.id(), response.id());
+        assertEquals(mockResponse.title(), response.title());
+        assertEquals(mockResponse.content(), response.content());
+
+        verify(userRepository, times(1)).findByUsername("user");
         verify(postMapper, times(1)).toEntity(mockRequest);
         verify(postRepository, times(1)).save(any(Post.class));
         verify(postMapper, times(1)).toResponse(any(Post.class));

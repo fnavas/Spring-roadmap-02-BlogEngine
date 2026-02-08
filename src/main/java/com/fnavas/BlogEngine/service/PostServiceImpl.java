@@ -72,6 +72,25 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse updatePost(Long id, PostCreateRequest postRequest) {
-        return null;
+        log.info("[updatePost]-Service request to update post");
+        log.debug("[updatePost]-Service request to update post: {}, {}", id, postRequest);
+        Post post = postRepository.findById(id).orElseThrow(
+                () -> new PostNotFoundException("Post not found with id: " + id)
+        );
+        log.debug("[updatePost]-Service post to update: {}", post);
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+        boolean isAuthor = post.getAuthor().getUsername().equals(SecurityContextHolder.getContext()
+                .getAuthentication().getName());
+        if (!isAdmin && !isAuthor) {
+            log.warn("[updatePost]-Service unauthorized attempt to update post with id: {}", id);
+            throw new RuntimeException("Unauthorized to update this post");
+        }
+        post.setTitle(postRequest.title());
+        post.setContent(postRequest.content());
+        Post updatedPost = postRepository.save(post);
+        log.info("[updatePost]-Service post updated successfully");
+        log.debug("[updatePost]-Service post updated successfully with id: {}", updatedPost.getId());
+        return postMapper.toResponse(updatedPost);
     }
 }

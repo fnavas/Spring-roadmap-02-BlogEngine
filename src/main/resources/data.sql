@@ -1,7 +1,7 @@
 INSERT INTO user (username, password, role, created_at, updated_at)
 VALUES ('admin', 'scrypt_hash_here', 'ROLE_ADMIN', NOW(), NOW());
 INSERT INTO user (username, password, role, created_at, updated_at)
-VALUES ('jane', 'scrypt_hash_here', 'ROLE_USER', NOW(), NOW());
+VALUES ('user', 'scrypt_hash_here', 'ROLE_USER', NOW(), NOW());
 
 INSERT INTO post (title, content, author_id, created_at, updated_at)
 VALUES ('My First Tech Blog', 'This is a post about Spring Boot and MySQL.', 1, NOW(), NOW());
