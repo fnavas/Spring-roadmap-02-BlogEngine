@@ -3,10 +3,9 @@ package com.fnavas.BlogEngine.service;
 import com.fnavas.BlogEngine.dto.PostCreateRequest;
 import com.fnavas.BlogEngine.dto.PostResponse;
 import com.fnavas.BlogEngine.entity.Post;
-import com.fnavas.BlogEngine.entity.Role;
 import com.fnavas.BlogEngine.entity.User;
 import com.fnavas.BlogEngine.exception.PostNotFoundException;
-import com.fnavas.BlogEngine.exception.UnauthorizedException;
+import com.fnavas.BlogEngine.exception.UserNotFoundException;
 import com.fnavas.BlogEngine.mapper.PostMapper;
 import com.fnavas.BlogEngine.repository.PostRepository;
 import com.fnavas.BlogEngine.repository.UserRepository;
@@ -63,7 +62,7 @@ public class PostServiceImpl implements PostService {
         String username = authentication.getName();
         log.debug("[createPost]-Service username : {}", username);
         User author = userRepository.findByUsername(username)
-               .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+               .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
         log.debug("[createPost]-Service author : {}", author);
         Post post = postMapper.toEntity(postRequest);
         post.setAuthor(author);
@@ -72,32 +71,6 @@ public class PostServiceImpl implements PostService {
         log.debug("[createPost]-Service post created successfully with id: {}", savedPost.getId());
         return postMapper.toResponse(savedPost);
     }
-
-//    @Override
-//    public PostResponse updatePost(Long id, PostCreateRequest postRequest) {
-//        log.info("[updatePost]-Service request to update post");
-//        log.debug("[updatePost]-Service request to update post: {}, {}", id, postRequest);
-//        Post post = postRepository.findById(id).orElseThrow(
-//                () -> new PostNotFoundException("Post not found with id: " + id)
-//        );
-//        log.debug("[updatePost]-Service post to update: {}", post);
-//        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-//                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-//        log.debug("[updatePost]-Service isAdmin: {}", isAdmin);
-//        boolean isAuthor = post.getAuthor().getUsername().equals(SecurityContextHolder.getContext()
-//                .getAuthentication().getName());
-//        log.debug("[updatePost]-Service isAuthor: {}", isAuthor);
-//        if (!isAdmin && !isAuthor) {
-//            log.warn("[updatePost]-Service unauthorized attempt to update post with id: {}", id);
-//            throw new UnauthorizedException("Unauthorized to update this post");
-//        }
-//        post.setTitle(postRequest.title());
-//        post.setContent(postRequest.content());
-//        Post updatedPost = postRepository.save(post);
-//        log.info("[updatePost]-Service post updated successfully");
-//        log.debug("[updatePost]-Service post updated successfully with id: {}", updatedPost.getId());
-//        return postMapper.toResponse(updatedPost);
-//    }
 
     @Override
     @PreAuthorize("hasRole('ADMIN') or @postSecurity.isAuthor(#id, authentication.name)")

@@ -34,4 +34,15 @@ public class GlobalHandlerException {
         errorResponse.setTimestamp(LocalDateTime.now());
         return ResponseEntity.status(404).body(errorResponse);
     }
+
+    @ExceptionHandler(value = UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        log.error("Unauthorized exception: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setCode(403);
+        errorResponse.setMessage(ex.getMessage());
+        errorResponse.setError("Unauthorized");
+        errorResponse.setTimestamp(LocalDateTime.now());
+        return ResponseEntity.status(403).body(errorResponse);
+    }
 }

@@ -46,10 +46,14 @@ public class SecurityConfig {
                 .password("{noop}admin123")
                 .roles("ADMIN")
                 .build();
-        UserDetails user = User.withUsername("user")
+        UserDetails user1 = User.withUsername("user1")
                 .password("{noop}user123")
                 .roles("USER")
                 .build();
-        return new InMemoryUserDetailsManager(admin, user);
+        UserDetails user2  = User.withUsername("user2")
+                .password("{noop}user123")
+                .roles("USER")
+                .build();
+        return new InMemoryUserDetailsManager(admin, user1, user2);
     }
 }
