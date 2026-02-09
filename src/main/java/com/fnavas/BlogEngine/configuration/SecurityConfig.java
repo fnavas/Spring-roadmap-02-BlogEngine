@@ -1,5 +1,8 @@
 package com.fnavas.BlogEngine.configuration;
 
+import com.fnavas.BlogEngine.security.CustomAccessDeniedHandler;
+import com.fnavas.BlogEngine.security.CustomAuthEntryPoint;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,7 +20,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthEntryPoint authEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -25,7 +32,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(Customizer.withDefaults());
+                .exceptionHandling(ex ->
+                        ex.authenticationEntryPoint(authEntryPoint).accessDeniedHandler(accessDeniedHandler))
+                .httpBasic(httpBasic ->
+                        httpBasic.authenticationEntryPoint(authEntryPoint)
+                );
         return http.build();
     }
 

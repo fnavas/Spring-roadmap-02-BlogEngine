@@ -11,6 +11,7 @@ import com.fnavas.BlogEngine.mapper.PostMapper;
 import com.fnavas.BlogEngine.repository.PostRepository;
 import com.fnavas.BlogEngine.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public PostResponse createPost(PostCreateRequest postRequest) {
         log.info("[createPost]-Service request to create post");
         log.debug("[createPost]-Service request to create post: {}", postRequest);
@@ -71,24 +73,40 @@ public class PostServiceImpl implements PostService {
         return postMapper.toResponse(savedPost);
     }
 
+//    @Override
+//    public PostResponse updatePost(Long id, PostCreateRequest postRequest) {
+//        log.info("[updatePost]-Service request to update post");
+//        log.debug("[updatePost]-Service request to update post: {}, {}", id, postRequest);
+//        Post post = postRepository.findById(id).orElseThrow(
+//                () -> new PostNotFoundException("Post not found with id: " + id)
+//        );
+//        log.debug("[updatePost]-Service post to update: {}", post);
+//        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+//                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+//        log.debug("[updatePost]-Service isAdmin: {}", isAdmin);
+//        boolean isAuthor = post.getAuthor().getUsername().equals(SecurityContextHolder.getContext()
+//                .getAuthentication().getName());
+//        log.debug("[updatePost]-Service isAuthor: {}", isAuthor);
+//        if (!isAdmin && !isAuthor) {
+//            log.warn("[updatePost]-Service unauthorized attempt to update post with id: {}", id);
+//            throw new UnauthorizedException("Unauthorized to update this post");
+//        }
+//        post.setTitle(postRequest.title());
+//        post.setContent(postRequest.content());
+//        Post updatedPost = postRepository.save(post);
+//        log.info("[updatePost]-Service post updated successfully");
+//        log.debug("[updatePost]-Service post updated successfully with id: {}", updatedPost.getId());
+//        return postMapper.toResponse(updatedPost);
+//    }
+
     @Override
+    @PreAuthorize("hasRole('ADMIN') or @postSecurity.isAuthor(#id, authentication.name)")
     public PostResponse updatePost(Long id, PostCreateRequest postRequest) {
         log.info("[updatePost]-Service request to update post");
         log.debug("[updatePost]-Service request to update post: {}, {}", id, postRequest);
         Post post = postRepository.findById(id).orElseThrow(
                 () -> new PostNotFoundException("Post not found with id: " + id)
         );
-        log.debug("[updatePost]-Service post to update: {}", post);
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-        log.debug("[updatePost]-Service isAdmin: {}", isAdmin);
-        boolean isAuthor = post.getAuthor().getUsername().equals(SecurityContextHolder.getContext()
-                .getAuthentication().getName());
-        log.debug("[updatePost]-Service isAuthor: {}", isAuthor);
-        if (!isAdmin && !isAuthor) {
-            log.warn("[updatePost]-Service unauthorized attempt to update post with id: {}", id);
-            throw new UnauthorizedException("Unauthorized to update this post");
-        }
         post.setTitle(postRequest.title());
         post.setContent(postRequest.content());
         Post updatedPost = postRepository.save(post);
