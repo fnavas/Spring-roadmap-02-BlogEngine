@@ -15,11 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.List;
 import java.util.Optional;
@@ -176,5 +174,34 @@ class PostServiceImplTest {
 
         assertEquals("User not found with username: unknown", exception.getMessage());
         verify(userRepository, times(1)).findByUsername("unknown");
+    }
+
+    @Test
+    void updatePost_adminRole_returnPostResponse() {
+        Long id = 1L;
+        PostCreateRequest mockRequest = new PostCreateRequest("Updated Title", "Updated Content");
+        when(postRepository.findById(id)).thenReturn(Optional.of(samplePost()));
+        when(postRepository.save(any(Post.class))).thenReturn(samplePost());
+        when(postMapper.toResponse(any(Post.class))).thenReturn(samplePostResponse());
+
+        PostResponse updatedResponse = postService.updatePost(id, mockRequest);
+
+        assertNotNull(updatedResponse);
+        verify(postRepository, times(1)).findById(id);
+        verify(postRepository, times(1)).save(any(Post.class));
+        verify(postMapper, times(1)).toResponse(any(Post.class));
+    }
+
+    @Test
+    void updatePost_idNotFound_returnPostNotFoundException() {
+        Long id = 1L;
+        PostCreateRequest mockRequest = new PostCreateRequest("Updated Title", "Updated Content");
+        when(postRepository.findById(id)).thenReturn(Optional.empty());
+
+        PostNotFoundException exception = assertThrows(
+                PostNotFoundException.class, () -> postService.updatePost(id, mockRequest));
+
+        assertEquals("Post not found with id: " + id, exception.getMessage());
+        verify(postRepository, times(1)).findById(id);
     }
 }
