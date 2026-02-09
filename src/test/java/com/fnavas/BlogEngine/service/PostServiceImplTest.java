@@ -5,6 +5,7 @@ import com.fnavas.BlogEngine.dto.PostResponse;
 import com.fnavas.BlogEngine.entity.Post;
 import com.fnavas.BlogEngine.entity.User;
 import com.fnavas.BlogEngine.exception.PostNotFoundException;
+import com.fnavas.BlogEngine.exception.UserNotFoundException;
 import com.fnavas.BlogEngine.mapper.PostMapper;
 import com.fnavas.BlogEngine.repository.PostRepository;
 import com.fnavas.BlogEngine.repository.UserRepository;
@@ -14,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -156,5 +158,23 @@ class PostServiceImplTest {
         verify(postMapper, times(1)).toEntity(mockRequest);
         verify(postRepository, times(1)).save(any(Post.class));
         verify(postMapper, times(1)).toResponse(any(Post.class));
+    }
+
+    @Test
+    void createPost_userNotFound_returnUserNotFoundException() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("unknown");
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        PostCreateRequest mockRequest = new PostCreateRequest("Title", "Content");
+        when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> postService.createPost(mockRequest));
+
+        assertEquals("User not found with username: unknown", exception.getMessage());
+        verify(userRepository, times(1)).findByUsername("unknown");
     }
 }
