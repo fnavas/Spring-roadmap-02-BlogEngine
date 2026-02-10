@@ -87,4 +87,16 @@ public class PostServiceImpl implements PostService {
         log.debug("[updatePost]-Service post updated successfully with id: {}", updatedPost.getId());
         return postMapper.toResponse(updatedPost);
     }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN') or @postSecurity.isAuthor(#id, authentication.name)")
+    public void deletePost(Long id) {
+        log.info("[deletePost]-Service request to delete post");
+        log.debug("[deletePost]-Service request to delete post: {}", id);
+        Post post = postRepository.findById(id).orElseThrow(
+                () -> new PostNotFoundException("Post not found with id: " + id)
+        );
+        postRepository.delete(post);
+        log.info("[deletePost]-Service post deleted successfully");
+    }
 }

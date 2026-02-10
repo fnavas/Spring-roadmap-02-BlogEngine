@@ -177,7 +177,7 @@ class PostServiceImplTest {
     }
 
     @Test
-    void updatePost_adminRole_returnPostResponse() {
+    void updatePost_returnPostResponse() {
         Long id = 1L;
         PostCreateRequest mockRequest = new PostCreateRequest("Updated Title", "Updated Content");
         when(postRepository.findById(id)).thenReturn(Optional.of(samplePost()));
@@ -203,5 +203,30 @@ class PostServiceImplTest {
 
         assertEquals("Post not found with id: " + id, exception.getMessage());
         verify(postRepository, times(1)).findById(id);
+        verify(postRepository, times(0)).save(any(Post.class));
+    }
+
+    @Test
+    void deletePost_success() {
+        Long id = 1L;
+        when(postRepository.findById(id)).thenReturn(Optional.of(samplePost()));
+
+        assertDoesNotThrow(() -> postService.deletePost(id));
+
+        verify(postRepository, times(1)).findById(id);
+        verify(postRepository, times(1)).delete(any(Post.class));
+    }
+
+    @Test
+    void deletePost_idNotFound_returnPostNotFoundException() {
+        Long id = 1L;
+        when(postRepository.findById(id)).thenReturn(Optional.empty());
+
+        PostNotFoundException exception = assertThrows(
+                PostNotFoundException.class, () -> postService.deletePost(id));
+
+        assertEquals("Post not found with id: " + id, exception.getMessage());
+        verify(postRepository, times(1)).findById(id);
+        verify(postRepository, times(0)).delete(any(Post.class));
     }
 }

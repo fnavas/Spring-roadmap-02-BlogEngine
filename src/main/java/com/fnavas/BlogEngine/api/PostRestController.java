@@ -49,4 +49,13 @@ public class PostRestController {
         log.debug("[updatePost]-RestController request to update post by id: {}, {}", id, postRequest);
         return ResponseEntity.ok().body(postService.updatePost(id, postRequest));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+        log.info("[deletePost]-RestController request to delete post by id");
+        log.debug("[deletePost]-RestController request to delete post by id: {}", id);
+        postService.deletePost(id);
+        return ResponseEntity.noContent().build();
+    }
 }
