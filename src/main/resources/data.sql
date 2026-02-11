@@ -5,13 +5,13 @@ VALUES ('user1', '$2a$10$v437ar7Mkhi/AfKDxgFw/u9gK3LSRfo3Hv1P1YNOsMj6ZT5F5kFxa',
 INSERT INTO users (username, password, role, created_at, updated_at)
 VALUES ('user2', '$2a$10$v437ar7Mkhi/AfKDxgFw/u9gK3LSRfo3Hv1P1YNOsMj6ZT5F5kFxa', 'ROLE_USER', NOW(), NOW());
 
-INSERT INTO post (title, content, author_id, created_at, updated_at)
+INSERT INTO posts (title, content, author_id, created_at, updated_at)
 VALUES ('My First Tech Blog', 'This is a post about Spring Boot and MySQL.', 1, NOW(), NOW());
-INSERT INTO post (title, content, author_id, created_at, updated_at)
+INSERT INTO posts (title, content, author_id, created_at, updated_at)
 VALUES ('Learning JPA Relationships', 'Understanding ManyToOne and OneToMany is key.', 2, NOW(), NOW());
 
-INSERT INTO comment (text, post_id, author_id, created_at, updated_at)
+INSERT INTO comments (text, post_id, author_id, created_at, updated_at)
 VALUES ('Great article! Thanks for sharing.', 1, 2, NOW(), NOW());
 
-INSERT INTO comment (text, post_id, author_id, created_at, updated_at)
+INSERT INTO comments (text, post_id, author_id, created_at, updated_at)
 VALUES ('I have a question about LAZY fetching...', 2, 1, NOW(), NOW());

@@ -10,6 +10,7 @@ import java.util.List;
 
 @Entity
 @Getter @Setter @NoArgsConstructor
+@Table(name = "posts")
 public class Post extends BaseEntity {
 
     @Column(nullable = false)

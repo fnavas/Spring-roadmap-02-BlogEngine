@@ -7,6 +7,7 @@ import lombok.Setter;
 
 @Entity
 @Getter @Setter @NoArgsConstructor
+@Table(name = "comments")
 public class Comment extends BaseEntity {
     @Lob
     @Column(nullable = false)
