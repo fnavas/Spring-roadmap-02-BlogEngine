@@ -45,4 +45,15 @@ public class GlobalHandlerException {
                 .timestamp(LocalDateTime.now())
                 .build());
     }
+
+    @ExceptionHandler(value = UserWithUsernameException.class)
+    public ResponseEntity<ErrorResponse> handleUserWithUsernameException(UserWithUsernameException ex) {
+        log.error("User with username exception: {}", ex.getMessage());
+        return ResponseEntity.status(400).body(ErrorResponse.builder()
+                .code(400)
+                .message(ex.getMessage())
+                .error("User with username already exists")
+                .timestamp(LocalDateTime.now())
+                .build());
+        }
 }
