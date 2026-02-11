@@ -16,33 +16,33 @@ public class GlobalHandlerException {
     @ExceptionHandler(value = PostNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePostNotFoundException(PostNotFoundException ex) {
         log.error("Post not found exception: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setCode(404);
-        errorResponse.setMessage(ex.getMessage());
-        errorResponse.setError("Post Not Found");
-        errorResponse.setTimestamp(LocalDateTime.now());
-        return ResponseEntity.status(404).body(errorResponse);
+        return ResponseEntity.status(404).body(ErrorResponse.builder()
+                        .code(404)
+                        .message(ex.getMessage())
+                        .error("Post Not Found")
+                        .timestamp(LocalDateTime.now())
+                        .build());
     }
 
     @ExceptionHandler(value = UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
         log.error("User not found exception: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setCode(404);
-        errorResponse.setMessage(ex.getMessage());
-        errorResponse.setError("User Not Found");
-        errorResponse.setTimestamp(LocalDateTime.now());
-        return ResponseEntity.status(404).body(errorResponse);
+        return ResponseEntity.status(404).body(ErrorResponse.builder()
+                .code(404)
+                .message(ex.getMessage())
+                .error("User Not Found")
+                .timestamp(LocalDateTime.now())
+                .build());
     }
 
     @ExceptionHandler(value = UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
         log.error("Unauthorized exception: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setCode(403);
-        errorResponse.setMessage(ex.getMessage());
-        errorResponse.setError("Unauthorized");
-        errorResponse.setTimestamp(LocalDateTime.now());
-        return ResponseEntity.status(403).body(errorResponse);
+        return ResponseEntity.status(403).body(ErrorResponse.builder()
+                .code(403)
+                .message(ex.getMessage())
+                .error("Unauthorized")
+                .timestamp(LocalDateTime.now())
+                .build());
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Component
 @Slf4j
@@ -26,12 +27,12 @@ public class CustomAuthEntryPoint implements AuthenticationEntryPoint {
 
         String message = "Full authentication is required";
 
-        ErrorResponse error = new ErrorResponse();
-        error.setCode(401);
-        error.setError("Unauthorized");
-        error.setMessage(message);
-        error.setTimestamp(java.time.LocalDateTime.now());
-
-        response.getWriter().write(new ObjectMapper().writeValueAsString(error));
+        response.getWriter().write(new ObjectMapper().writeValueAsString(ErrorResponse.builder()
+                .code(401)
+                .error("Unauthorized")
+                .message(message)
+                .timestamp(LocalDateTime.now())
+                .build()
+        ));
     }
 }

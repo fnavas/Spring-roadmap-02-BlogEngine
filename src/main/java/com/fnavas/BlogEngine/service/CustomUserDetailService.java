@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MyUserDetailService implements UserDetailsService {
+public class CustomUserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -24,9 +24,9 @@ public class MyUserDetailService implements UserDetailsService {
         log.debug("[loadUserByUsername]-Service request to load user by username: {}", username);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
-        log.info("[loadUserByUsername]-User name found {}", user.getUsername());
-        log.info("[loadUserByUsername]-Password in DB   : {}", user.getPassword());
-        log.info("[loadUserByUsername]-Role in DB {}", user.getRole());
+        log.debug("[loadUserByUsername]-User name found {}", user.getUsername());
+        log.debug("[loadUserByUsername]-Password in DB   : {}", user.getPassword());
+        log.debug("[loadUserByUsername]-Role in DB {}", user.getRole());
         return user;
     }
 }

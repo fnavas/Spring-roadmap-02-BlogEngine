@@ -25,12 +25,12 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType("application/json");
 
-        ErrorResponse error = new ErrorResponse();
-        error.setCode(403);
-        error.setMessage(ex.getMessage());
-        error.setError("Forbidden");
-        error.setTimestamp(LocalDateTime.now());
-
-        response.getWriter().write(new ObjectMapper().writeValueAsString(error));
+        response.getWriter().write(new ObjectMapper().writeValueAsString(ErrorResponse.builder()
+                .code(403)
+                .error("Forbidden")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build()
+        ));
     }
 }

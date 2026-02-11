@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -39,7 +40,9 @@ public class PostRestController {
     public ResponseEntity<PostResponse> createPost(@RequestBody PostCreateRequest postRequest) {
         log.info("[createPost]-RestController request to create a new post");
         log.debug("[createPost]-RestController request to create a new post: {}", postRequest);
-        return ResponseEntity.ok().body(postService.createPost(postRequest));
+        PostResponse createdPost = postService.createPost(postRequest);
+        URI location = URI.create(String.format("/api/v1/posts/%s", createdPost.id()));
+        return ResponseEntity.created(location).body(createdPost);
     }
 
     @PutMapping("/{id}")
