@@ -14,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Getter @Setter @NoArgsConstructor @ToString
-@Table(uniqueConstraints = {
+@Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(name = "UK_USER_USERNAME", columnNames = "username")})
 public class User extends BaseEntity implements UserDetails {
 

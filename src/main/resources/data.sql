@@ -1,8 +1,8 @@
-INSERT INTO user (username, password, role, created_at, updated_at)
+INSERT INTO users (username, password, role, created_at, updated_at)
 VALUES ('admin', '$2a$10$v437ar7Mkhi/AfKDxgFw/u9gK3LSRfo3Hv1P1YNOsMj6ZT5F5kFxa', 'ROLE_ADMIN', NOW(), NOW());
-INSERT INTO user (username, password, role, created_at, updated_at)
+INSERT INTO users (username, password, role, created_at, updated_at)
 VALUES ('user1', '$2a$10$v437ar7Mkhi/AfKDxgFw/u9gK3LSRfo3Hv1P1YNOsMj6ZT5F5kFxa', 'ROLE_USER', NOW(), NOW());
-INSERT INTO user (username, password, role, created_at, updated_at)
+INSERT INTO users (username, password, role, created_at, updated_at)
 VALUES ('user2', '$2a$10$v437ar7Mkhi/AfKDxgFw/u9gK3LSRfo3Hv1P1YNOsMj6ZT5F5kFxa', 'ROLE_USER', NOW(), NOW());
 
 INSERT INTO post (title, content, author_id, created_at, updated_at)
