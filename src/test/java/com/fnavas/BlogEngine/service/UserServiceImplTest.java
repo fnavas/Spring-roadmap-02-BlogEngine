@@ -4,6 +4,7 @@ import com.fnavas.BlogEngine.dto.UserRegisterRequest;
 import com.fnavas.BlogEngine.dto.UserResponse;
 import com.fnavas.BlogEngine.entity.Role;
 import com.fnavas.BlogEngine.entity.User;
+import com.fnavas.BlogEngine.exception.UserNotFoundException;
 import com.fnavas.BlogEngine.exception.UserWithUsernameException;
 import com.fnavas.BlogEngine.mapper.UserMapper;
 import com.fnavas.BlogEngine.repository.UserRepository;
@@ -14,6 +15,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +34,69 @@ class UserServiceImplTest {
 
     @InjectMocks
     private UserServiceImpl userService;
+
+    @Test
+    void getAllUsers_ok_shouldReturnListOfUserResponses() {
+        when(userRepository.findAll()).thenReturn(java.util.List.of(new User()));
+        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(1L, "testuser", Role.ROLE_USER));
+
+        List<UserResponse> users = userService.getAllUsers();
+
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals("testuser", users.get(0).username());
+        verify(userRepository, times(1)).findAll();
+        verify(userMapper, times(1)).toResponse(any(User.class));
+    }
+
+    @Test
+void getUserById_ok_shouldReturnUserResponse() {
+        Long id = 1L;
+        when(userRepository.findById(id)).thenReturn(Optional.of(new User()));
+        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(id, "testuser", Role.ROLE_USER));
+
+        UserResponse userResponse = userService.getUserById(id);
+
+        assertNotNull(userResponse); assertEquals("testuser", userResponse.username());
+        verify(userRepository, times(1)).findById(id);
+        verify(userMapper, times(1)).toResponse(any(User.class));
+    }
+
+    @Test
+void getUserById_userNotFound_shouldThrowException() {
+        Long id = 1L;
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        RuntimeException ex = assertThrows(UserNotFoundException.class, () -> userService.getUserById(1L));
+
+        assertEquals("User with id "+id+" not found", ex.getMessage());
+        verify(userRepository, times(1)).findById(id);
+        verify(userMapper, never()).toResponse(any(User.class));
+    }
+
+    @Test
+void getUserByUsername_ok_shouldReturnUserResponse() {
+        String username = "testuser";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(new User()));
+        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(1L, username, Role.ROLE_USER));
+
+        UserResponse userResponse = userService.getUserByUsername(username);
+
+        assertNotNull(userResponse);
+        assertEquals(username, userResponse.username());
+        verify(userRepository, times(1)).findByUsername(username);
+        verify(userMapper, times(1)).toResponse(any(User.class));
+    }
+    @Test
+    void getUserByUsername_userNotFound_shouldThrowException() {
+        String username = "testuser";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        RuntimeException ex = assertThrows(UserNotFoundException.class, () -> userService.getUserByUsername(username));
+
+        assertEquals("User with username "+username+" not found", ex.getMessage());
+        verify(userRepository, times(1)).findByUsername(username);
+        verify(userMapper, never()).toResponse(any(User.class)); }
 
     @Test
     void createUser_ok_shouldReturnUserReponse() {
