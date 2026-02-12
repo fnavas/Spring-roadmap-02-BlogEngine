@@ -9,6 +9,7 @@ import com.fnavas.BlogEngine.exception.UserNotFoundException;
 import com.fnavas.BlogEngine.mapper.PostMapper;
 import com.fnavas.BlogEngine.repository.PostRepository;
 import com.fnavas.BlogEngine.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -19,18 +20,12 @@ import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostMapper postMapper;
-
-    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository , PostMapper postMapper) {
-        this.postRepository = postRepository;
-        this.userRepository = userRepository;
-        this.postMapper = postMapper;
-    }
-
 
     @Override
     public List<PostResponse> getAllPosts() {
@@ -51,6 +46,31 @@ public class PostServiceImpl implements PostService {
         );
         log.debug("[getPostById]-Service get post by id: {}", post);
         return postMapper.toResponse(post);
+    }
+
+    @Override
+    public List<PostResponse> getPostsByAuthor(String username) {
+        log.info("[getPostsByAuthor]-Service request to get posts by author");
+        log.debug("[getPostsByAuthor]-Service request to get posts by author: {}", username);
+        User author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+        log.debug("[getPostsByAuthor]-Service get author: {}", author);
+        List<Post> posts = postRepository.findByAuthor(author);
+        log.debug("[getPostsByAuthor]-Service get posts by author: {}", posts);
+        return posts.stream()
+                .map(postMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<PostResponse> getPostsByTitle(String title) {
+        log.info("[getPostsByTitle]-Service request to get posts by title");
+        log.debug("[getPostsByTitle]-Service request to get posts by title: {}", title);
+        List<Post> posts = postRepository.findByTitleContainingIgnoreCase(title);
+        log.debug("[getPostsByTitle]-Service get posts by title: {}", posts);
+        return posts.stream()
+                .map(postMapper::toResponse)
+                .toList();
     }
 
     @Override

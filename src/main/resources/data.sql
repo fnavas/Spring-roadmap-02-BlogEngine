@@ -9,6 +9,8 @@ INSERT INTO posts (title, content, author_id, created_at, updated_at)
 VALUES ('My First Tech Blog', 'This is a post about Spring Boot and MySQL.', 1, NOW(), NOW());
 INSERT INTO posts (title, content, author_id, created_at, updated_at)
 VALUES ('Learning JPA Relationships', 'Understanding ManyToOne and OneToMany is key.', 2, NOW(), NOW());
+INSERT INTO posts (title, content, author_id, created_at, updated_at)
+VALUES ('My Second Tech Blog', 'This is a post about Security in Spring.', 1, NOW(), NOW());
 
 INSERT INTO comments (text, post_id, author_id, created_at, updated_at)
 VALUES ('Great article! Thanks for sharing.', 1, 2, NOW(), NOW());

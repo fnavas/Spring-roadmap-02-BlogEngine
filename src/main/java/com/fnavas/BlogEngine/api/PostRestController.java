@@ -35,6 +35,22 @@ public class PostRestController {
         return ResponseEntity.ok().body(postService.getPostById(id));
     }
 
+    @GetMapping("/author/{username}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<List<PostResponse>> getPostsByAuthor(@PathVariable String username) {
+        log.info("[getPostsByAuthor]-RestController request to get posts by author");
+        log.debug("[getPostsByAuthor]-RestController request to get posts by author: {}", username);
+        return ResponseEntity.ok().body(postService.getPostsByAuthor(username));
+    }
+
+    @GetMapping("title/{title}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<List<PostResponse>> getPostsByTitle(@PathVariable String title) {
+        log.info("[getPostsByTitle]-RestController request to get posts by title");
+        log.debug("[getPostsByTitle]-RestController request to get posts by title: {}", title);
+        return ResponseEntity.ok().body(postService.getPostsByTitle(title));
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<PostResponse> createPost(@RequestBody PostCreateRequest postRequest) {
