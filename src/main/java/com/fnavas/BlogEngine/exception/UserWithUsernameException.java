@@ -1,7 +1,0 @@
-package com.fnavas.BlogEngine.exception;
-
-public class UserWithUsernameException extends RuntimeException {
-    public UserWithUsernameException(String message) {
-        super(message);
-    }
-}
