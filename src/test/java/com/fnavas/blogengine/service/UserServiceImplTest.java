@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +30,9 @@ class UserServiceImplTest {
 
     @Mock
     private UserMapper userMapper;
+
+    @Mock
+    private PasswordEncoder encoder;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -103,6 +107,7 @@ void getUserByUsername_ok_shouldReturnUserResponse() {
         when(userRepository.findByUsername("testuser")).thenReturn(java.util.Optional.empty());
         when(userMapper.toEntity(userRequest)).thenReturn(new User());
         when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(1L, "testuser", Role.ROLE_USER));
+        when(encoder.encode(userRequest.password())).thenReturn("password");
 
         UserResponse userResponse = userService.createUser(userRequest);
 
@@ -112,6 +117,7 @@ void getUserByUsername_ok_shouldReturnUserResponse() {
         verify(userMapper, times(1)).toEntity(userRequest);
         verify(userMapper, times(1)).toResponse(any(User.class));
         verify(userRepository, times(1)).findByUsername("testuser");
+        verify(encoder, times(1)).encode(userRequest.password());
 
     }
 

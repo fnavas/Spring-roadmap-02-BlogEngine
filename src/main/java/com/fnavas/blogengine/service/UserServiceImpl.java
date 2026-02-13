@@ -10,8 +10,11 @@ import com.fnavas.blogengine.mapper.UserMapper;
 import com.fnavas.blogengine.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -21,6 +24,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder encoder;
 
     @Override
     public UserResponse createUser(UserRegisterRequest userRequest) {
@@ -33,6 +37,8 @@ public class UserServiceImpl implements UserService {
         }
         User newUser = userMapper.toEntity(userRequest);
         newUser.setRole(Role.ROLE_USER);
+        //TODO: enhance password encoding
+        newUser.setPassword(encoder.encode(userRequest.password()));
         User savedUser = userRepository.save(newUser);
         log.info("[createUser]-Service user created successfully");
         log.debug("[createUser]-Service user created with id: {}", savedUser.getId());
@@ -71,5 +77,24 @@ public class UserServiceImpl implements UserService {
         log.info("[getUserByUsername]-Service user retrieved successfully");
         log.debug("[getUserByUsername]-Service user retrieved with id: {}", user.getId());
         return userMapper.toResponse(user);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') and authentication.name == #userRequest.username())")
+    public UserResponse updateUser(UserRegisterRequest userRequest) {
+        log.info("[updateUser]-Service request to update user");
+        log.debug("[updateUser]-Service request to update user with username: {}"
+                + " password: {}", userRequest.username(), userRequest.password());
+        User user = userRepository.findByUsername(userRequest.username()) .orElseThrow(() -> {
+            log.warn("[updateUser]-Service user with username {} not found", userRequest.username());
+            return new UserNotFoundException("User with username " + userRequest.username() + " not found");
+        });
+        //TODO: change username
+        user.setPassword(encoder.encode(userRequest.password()));
+        user.setUpdatedAt(LocalDateTime.now());
+        User updatedUser = userRepository.save(user);
+        log.info("[updateUser]-Service user updated successfully");
+        log.debug("[updateUser]-Service user updated with id: {}", updatedUser.getId());
+        return userMapper.toResponse(updatedUser);
     }
 }

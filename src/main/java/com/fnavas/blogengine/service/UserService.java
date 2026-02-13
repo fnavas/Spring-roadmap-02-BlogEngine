@@ -13,4 +13,6 @@ public interface UserService {
     UserResponse getUserById(Long id);
 
     UserResponse getUserByUsername(String username);
+
+    UserResponse updateUser(UserRegisterRequest userRequest);
 }

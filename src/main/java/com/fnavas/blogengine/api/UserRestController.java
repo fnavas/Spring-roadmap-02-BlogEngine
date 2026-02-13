@@ -54,4 +54,12 @@ public class UserRestController {
         URI location = URI.create(String.format("/api/v1/users/%s", createdUser.id()));
         return ResponseEntity.created(location).body(createdUser);
     }
+
+    @PutMapping()
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<UserResponse> updateUser(@RequestBody UserRegisterRequest userRequest) {
+        log.info("[updateUser]-RestController request to update user");
+        log.debug("[updateUser]-RestController request to update user with" +
+                " username: {} password: {}", userRequest.username(), userRequest.password());
+        UserResponse updatedUser = userService.updateUser(userRequest); return ResponseEntity.ok(updatedUser); }
 }
