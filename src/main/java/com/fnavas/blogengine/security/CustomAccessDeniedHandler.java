@@ -3,6 +3,7 @@ package com.fnavas.blogengine.security;
 import com.fnavas.blogengine.exception.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,7 +16,10 @@ import java.time.LocalDateTime;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void handle(HttpServletRequest request,
@@ -25,7 +29,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType("application/json");
 
-        response.getWriter().write(new ObjectMapper().writeValueAsString(ErrorResponse.builder()
+        response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.builder()
                 .code(403)
                 .error("Forbidden")
                 .message(ex.getMessage())
