@@ -54,6 +54,7 @@ public class PostRestController {
         log.debug("[createPost]-RestController request to create a new post: {}", postRequest);
         PostResponse createdPost = postService.createPost(postRequest);
         URI location = URI.create(String.format("/api/v1/posts/%s", createdPost.id()));
+        log.debug("[createPost]-RestController request to create a new post at: {}", location);
         return ResponseEntity.created(location).body(createdPost);
     }
 
@@ -71,6 +72,7 @@ public class PostRestController {
         log.info("[deletePost]-RestController request to delete post by id");
         log.debug("[deletePost]-RestController request to delete post by id: {}", id);
         postService.deletePost(id);
+        log.info("[deletePost]-RestController request to delete post by id successfully");
         return ResponseEntity.noContent().build();
     }
 }
