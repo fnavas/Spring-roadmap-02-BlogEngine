@@ -21,7 +21,6 @@ public class UserRestController {
     private final UserService userService;
 
     @GetMapping
-    @PreAuthorize("permitAll()")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         log.info("[getAllUsers]-RestController request to get all users");
         List<UserResponse> users = userService.getAllUsers();
@@ -29,7 +28,6 @@ public class UserRestController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         log.info("[getUserById]-RestController request to get user by id: {}", id);
         UserResponse user = userService.getUserById(id);
@@ -37,7 +35,6 @@ public class UserRestController {
     }
 
     @GetMapping("/username/{username}")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
         log.info("[getUserByUsername]-RestController request to get user by username: {}", username);
         UserResponse user = userService.getUserByUsername(username);
@@ -45,7 +42,6 @@ public class UserRestController {
     }
 
     @PostMapping
-    @PreAuthorize("permitAll()")
     public ResponseEntity<UserResponse> createUser(@RequestBody UserRegisterRequest userRequest) {
         log.info("[createUser]-RestController request to create a new user");
         log.debug("[createUser]-RestController request to create a new user with username: {}" +
