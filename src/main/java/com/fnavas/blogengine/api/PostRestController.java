@@ -21,14 +21,12 @@ public class PostRestController {
     private final PostService postService;
 
     @GetMapping
-    @PreAuthorize("permitAll()")
     public ResponseEntity<List<PostResponse>> getAllPosts() {
         log.info("[getAllPosts]-RestController request to get all posts");
         return ResponseEntity.ok().body(postService.getAllPosts());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
         log.info("[getPostById]-RestController request to get post by id");
         log.debug("[getPostById]-RestController request to get post by id: {}", id);
@@ -36,7 +34,6 @@ public class PostRestController {
     }
 
     @GetMapping("/author/{username}")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<List<PostResponse>> getPostsByAuthor(@PathVariable String username) {
         log.info("[getPostsByAuthor]-RestController request to get posts by author");
         log.debug("[getPostsByAuthor]-RestController request to get posts by author: {}", username);
@@ -44,7 +41,6 @@ public class PostRestController {
     }
 
     @GetMapping("title/{title}")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<List<PostResponse>> getPostsByTitle(@PathVariable String title) {
         log.info("[getPostsByTitle]-RestController request to get posts by title");
         log.debug("[getPostsByTitle]-RestController request to get posts by title: {}", title);
