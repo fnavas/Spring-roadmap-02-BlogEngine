@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -79,6 +80,7 @@ public class PostServiceImpl implements PostService {
         log.info("[createPost]-Service request to create post");
         log.debug("[createPost]-Service request to create post: {}", postRequest);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Objects.requireNonNull(authentication, "Authentication must not be null");
         String username = authentication.getName();
         log.debug("[createPost]-Service username : {}", username);
         User author = userRepository.findByUsername(username)
