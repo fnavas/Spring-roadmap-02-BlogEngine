@@ -21,8 +21,14 @@ public class UserRestController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
+    public ResponseEntity<?> getAllUsers(@RequestParam(required = false) String username) {
         log.info("[getAllUsers]-RestController request to get all users");
+        if (username != null && !username.isBlank()) {
+            log.info("[getAllUsers]-RestController request to get users by username containing ignore case");
+            log.debug("[getAllUsers]-RestController request to get users by username containing ignore case {}", username);
+            UserResponse user = userService.getUserByUsername(username);
+            return ResponseEntity.ok(user);
+        }
         List<UserResponse> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
@@ -31,13 +37,6 @@ public class UserRestController {
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         log.info("[getUserById]-RestController request to get user by id: {}", id);
         UserResponse user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
-    }
-
-    @GetMapping("/username/{username}")
-    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
-        log.info("[getUserByUsername]-RestController request to get user by username: {}", username);
-        UserResponse user = userService.getUserByUsername(username);
         return ResponseEntity.ok(user);
     }
 
