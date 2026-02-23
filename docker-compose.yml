@@ -1,0 +1,17 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mi_mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: blogengine
+      MYSQL_DATABASE: blogenginedb
+      MYSQL_USER: blogengine
+      MYSQL_PASSWORD: blogengine
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
