@@ -59,7 +59,7 @@ class PostServiceImplTest {
                 .toResponse(any(Post.class)))
                 .thenReturn(new PostResponse(null, null, null, null, null));
 
-        List<PostResponse> postResponses = postService.getAllPosts();
+        List<PostResponse> postResponses = postService.getAllPosts(null);
 
         assertEquals(4, postResponses.size());
         verify(postRepository, Mockito.times(1)).findAll();

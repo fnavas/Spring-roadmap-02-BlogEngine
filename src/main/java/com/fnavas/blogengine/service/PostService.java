@@ -6,7 +6,7 @@ import com.fnavas.blogengine.dto.PostResponse;
 import java.util.List;
 
 public interface PostService {
-    List<PostResponse> getAllPosts();
+    List<PostResponse> getAllPosts(String author, String title);
     PostResponse getPostById(Long id);
 
     List<PostResponse> getPostsByAuthor(String username);

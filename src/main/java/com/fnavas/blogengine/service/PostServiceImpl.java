@@ -11,6 +11,7 @@ import com.fnavas.blogengine.repository.PostRepository;
 import com.fnavas.blogengine.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,9 +30,23 @@ public class PostServiceImpl implements PostService {
     private final PostMapper postMapper;
 
     @Override
-    public List<PostResponse> getAllPosts() {
+    public List<PostResponse> getAllPosts(String author, String title) {
         log.info("[getAllPosts]-Service request to get all posts");
-        List<Post> posts = postRepository.findAll();
+        Specification<Post> spec = Specification.where((root, query, cb) ->  cb.conjunction());
+        if (author != null && !author.isBlank()) {
+            log.info("[getAllPosts]-Service request to get all posts by author");
+            log.debug("[getAllPosts]-Service request to get all posts by author: {}", author);
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("author").get("username")), "%" + author.toLowerCase() + "%"));
+        }
+
+        if (title != null && !title.isBlank()) {
+            log.info("[getAllPosts]-Service request to get all posts by title");
+            log.debug("[getAllPosts]-Service request to get all posts by title: {}", title);
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
+        }
+        List<Post> posts = postRepository.findAll(spec);
         log.debug("[getAllPosts]-Service get all posts: {}", posts);
         return posts.stream()
                 .map(postMapper::toResponse)

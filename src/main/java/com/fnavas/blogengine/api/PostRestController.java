@@ -21,9 +21,12 @@ public class PostRestController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts() {
+    public ResponseEntity<List<PostResponse>> getAllPosts(
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String title){
         log.info("[getAllPosts]-RestController request to get all posts");
-        return ResponseEntity.ok().body(postService.getAllPosts());
+        log.debug("[getAllPosts]-RestController request to get all posts by author: {}", author);
+        return ResponseEntity.ok().body(postService.getAllPosts(author, title));
     }
 
     @GetMapping("/{id}")
@@ -31,20 +34,6 @@ public class PostRestController {
         log.info("[getPostById]-RestController request to get post by id");
         log.debug("[getPostById]-RestController request to get post by id: {}", id);
         return ResponseEntity.ok().body(postService.getPostById(id));
-    }
-
-    @GetMapping("/author/{username}")
-    public ResponseEntity<List<PostResponse>> getPostsByAuthor(@PathVariable String username) {
-        log.info("[getPostsByAuthor]-RestController request to get posts by author");
-        log.debug("[getPostsByAuthor]-RestController request to get posts by author: {}", username);
-        return ResponseEntity.ok().body(postService.getPostsByAuthor(username));
-    }
-
-    @GetMapping("title/{title}")
-    public ResponseEntity<List<PostResponse>> getPostsByTitle(@PathVariable String title) {
-        log.info("[getPostsByTitle]-RestController request to get posts by title");
-        log.debug("[getPostsByTitle]-RestController request to get posts by title: {}", title);
-        return ResponseEntity.ok().body(postService.getPostsByTitle(title));
     }
 
     @PostMapping

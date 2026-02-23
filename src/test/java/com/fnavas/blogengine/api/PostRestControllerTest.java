@@ -42,7 +42,7 @@ class PostRestControllerTest {
     @WithMockUser
     void getAllPosts_shouldReturnsOk() throws Exception {
         PostResponse mockPostResponse = samplepostResponse();
-        Mockito.when(postService.getAllPosts()).thenReturn(List.of(mockPostResponse));
+        Mockito.when(postService.getAllPosts(null)).thenReturn(List.of(mockPostResponse));
 
         mockMvc.perform(get("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON))
