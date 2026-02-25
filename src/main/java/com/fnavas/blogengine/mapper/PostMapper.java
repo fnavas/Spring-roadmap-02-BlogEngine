@@ -8,6 +8,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface PostMapper {
     public PostResponse toResponse(Post post);
-
     public Post toEntity(PostCreateRequest postCreateRequest);
 }
