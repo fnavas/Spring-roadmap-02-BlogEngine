@@ -4,7 +4,7 @@ public record PostDetailResponse(
         Long id,
         String title,
         String content,
-        UserResponse author,
+        AuthorResponse author,
         CommentResponse[] comments
 ) {
 }

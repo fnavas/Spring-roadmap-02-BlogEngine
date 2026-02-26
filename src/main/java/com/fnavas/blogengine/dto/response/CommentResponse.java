@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public record CommentResponse(
         Long id,
         String text,
-        UserResponse author,
+        AuthorResponse author,
         LocalDateTime createdAt
 ) {
 }

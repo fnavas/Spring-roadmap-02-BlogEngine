@@ -7,6 +7,6 @@ public record PostResponse(
         String title,
         String content,
         LocalDateTime createdAt,
-        UserResponse author
+        AuthorResponse author
 ) {
 }
