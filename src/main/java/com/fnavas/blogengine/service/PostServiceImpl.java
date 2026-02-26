@@ -2,6 +2,7 @@ package com.fnavas.blogengine.service;
 
 import com.fnavas.blogengine.dto.PostCreateRequest;
 import com.fnavas.blogengine.dto.PostResponse;
+import com.fnavas.blogengine.dto.PostResponseDetail;
 import com.fnavas.blogengine.entity.Post;
 import com.fnavas.blogengine.entity.User;
 import com.fnavas.blogengine.exception.PostNotFoundException;
@@ -54,14 +55,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse getPostById(Long id) {
+    public PostResponseDetail getPostById(Long id) {
         log.info("[getPostById]-Service request to get post by id");
         log.debug("[getPostById]-Service request to get post by id: {}", id);
         Post post = postRepository.findById(id).orElseThrow(
                 () -> new PostNotFoundException("Post not found with id: " + id)
         );
         log.debug("[getPostById]-Service get post by id: {}", post);
-        return postMapper.toResponse(post);
+        return postMapper.toResponseDetail(post);
     }
 
     @Override
