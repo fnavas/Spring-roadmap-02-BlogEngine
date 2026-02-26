@@ -1,7 +1,7 @@
 package com.fnavas.blogengine.service;
 
-import com.fnavas.blogengine.dto.PostCreateRequest;
-import com.fnavas.blogengine.dto.PostResponse;
+import com.fnavas.blogengine.dto.request.PostCreateRequest;
+import com.fnavas.blogengine.dto.response.PostResponse;
 import com.fnavas.blogengine.entity.Post;
 import com.fnavas.blogengine.entity.User;
 import com.fnavas.blogengine.exception.PostNotFoundException;

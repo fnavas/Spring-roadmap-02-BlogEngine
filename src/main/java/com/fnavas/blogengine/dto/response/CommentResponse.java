@@ -1,11 +1,11 @@
-package com.fnavas.blogengine.dto;
+package com.fnavas.blogengine.dto.response;
 
 import java.time.LocalDateTime;
 
 public record CommentResponse(
         Long id,
         String text,
-        String authorUsername,
+        UserResponse author,
         LocalDateTime createdAt
 ) {
 }

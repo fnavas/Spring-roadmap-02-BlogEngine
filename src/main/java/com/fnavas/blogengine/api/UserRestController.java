@@ -1,7 +1,7 @@
 package com.fnavas.blogengine.api;
 
-import com.fnavas.blogengine.dto.UserRegisterRequest;
-import com.fnavas.blogengine.dto.UserResponse;
+import com.fnavas.blogengine.dto.request.UserRegisterRequest;
+import com.fnavas.blogengine.dto.response.UserResponse;
 import com.fnavas.blogengine.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
-package com.fnavas.blogengine.dto;
+package com.fnavas.blogengine.dto.response;
 
-public record PostResponseDetail(
+public record PostDetailResponse(
         Long id,
         String title,
         String content,

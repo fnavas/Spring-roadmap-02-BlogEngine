@@ -1,6 +1,6 @@
 package com.fnavas.blogengine.service;
 
-import com.fnavas.blogengine.dto.CommentResponse;
+import com.fnavas.blogengine.dto.response.CommentResponse;
 import com.fnavas.blogengine.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

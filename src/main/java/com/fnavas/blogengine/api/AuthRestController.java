@@ -1,7 +1,7 @@
 package com.fnavas.blogengine.api;
 
-import com.fnavas.blogengine.dto.AuthRequest;
-import com.fnavas.blogengine.dto.AuthResponse;
+import com.fnavas.blogengine.dto.request.AuthRequest;
+import com.fnavas.blogengine.dto.response.AuthResponse;
 import com.fnavas.blogengine.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

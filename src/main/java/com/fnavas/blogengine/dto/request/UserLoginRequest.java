@@ -1,4 +1,4 @@
-package com.fnavas.blogengine.dto;
+package com.fnavas.blogengine.dto.request;
 
 public record UserLoginRequest(
         String username,

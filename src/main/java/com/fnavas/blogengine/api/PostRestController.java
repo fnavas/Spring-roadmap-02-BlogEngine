@@ -1,8 +1,8 @@
 package com.fnavas.blogengine.api;
 
-import com.fnavas.blogengine.dto.PostCreateRequest;
-import com.fnavas.blogengine.dto.PostResponse;
-import com.fnavas.blogengine.dto.PostResponseDetail;
+import com.fnavas.blogengine.dto.request.PostCreateRequest;
+import com.fnavas.blogengine.dto.response.PostDetailResponse;
+import com.fnavas.blogengine.dto.response.PostResponse;
 import com.fnavas.blogengine.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class PostRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponseDetail> getPostById(@PathVariable Long id) {
+    public ResponseEntity<PostDetailResponse> getPostById(@PathVariable Long id) {
         log.info("[getPostById]-RestController request to get post by id");
         log.debug("[getPostById]-RestController request to get post by id: {}", id);
         return ResponseEntity.ok().body(postService.getPostById(id));

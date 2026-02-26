@@ -1,4 +1,4 @@
-package com.fnavas.blogengine.dto;
+package com.fnavas.blogengine.dto.response;
 
 import com.fnavas.blogengine.entity.Role;
 

@@ -1,6 +1,6 @@
 package com.fnavas.blogengine.service;
 
-import com.fnavas.blogengine.dto.PostCreateRequest;
+import com.fnavas.blogengine.dto.request.PostCreateRequest;
 import com.fnavas.blogengine.repository.PostRepository;
 import com.fnavas.blogengine.repository.UserRepository;
 import org.junit.jupiter.api.Test;

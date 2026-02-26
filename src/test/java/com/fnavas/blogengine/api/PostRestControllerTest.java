@@ -1,6 +1,6 @@
 package com.fnavas.blogengine.api;
 
-import com.fnavas.blogengine.dto.PostResponse;
+import com.fnavas.blogengine.dto.response.PostResponse;
 import com.fnavas.blogengine.service.JwtService;
 import com.fnavas.blogengine.service.PostService;
 import org.junit.jupiter.api.Test;

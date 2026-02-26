@@ -1,6 +1,6 @@
 package com.fnavas.blogengine.api;
 
-import com.fnavas.blogengine.dto.CommentResponse;
+import com.fnavas.blogengine.dto.response.CommentResponse;
 import com.fnavas.blogengine.service.CommentService;
 
 import lombok.RequiredArgsConstructor;

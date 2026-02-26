@@ -1,4 +1,4 @@
-package com.fnavas.blogengine.dto;
+package com.fnavas.blogengine.dto.request;
 
 
 import lombok.AllArgsConstructor;

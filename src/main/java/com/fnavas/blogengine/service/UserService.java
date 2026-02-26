@@ -1,7 +1,7 @@
 package com.fnavas.blogengine.service;
 
-import com.fnavas.blogengine.dto.UserRegisterRequest;
-import com.fnavas.blogengine.dto.UserResponse;
+import com.fnavas.blogengine.dto.request.UserRegisterRequest;
+import com.fnavas.blogengine.dto.response.UserResponse;
 
 import java.util.List;
 
