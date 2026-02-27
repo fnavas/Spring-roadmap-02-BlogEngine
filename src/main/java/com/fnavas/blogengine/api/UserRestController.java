@@ -56,5 +56,14 @@ public class UserRestController {
         log.info("[updateUser]-RestController request to update user");
         log.debug("[updateUser]-RestController request to update user with" +
                 " username: {} password: {}", userRequest.username(), userRequest.password());
-        UserResponse updatedUser = userService.updateUser(userRequest); return ResponseEntity.ok(updatedUser); }
+        UserResponse updatedUser = userService.updateUser(userRequest); return ResponseEntity.ok(updatedUser);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        log.info("[deleteUser]-RestController request to delete user with id: {}", id);
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -96,4 +96,16 @@ public class UserServiceImpl implements UserService {
         log.debug("[updateUser]-Service user updated with id: {}", updatedUser.getId());
         return userMapper.toResponse(updatedUser);
     }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and @userSecurity.isUser(#id, authentication.name))")
+    public void deleteUser(Long id) {
+        log.info("[deleteUser]-Service request to delete user with id: {}", id);
+        User user = userRepository.findById(id).orElseThrow(() -> {
+            log.warn("[deleteUser]-Service user with id {} not found", id);
+            return new UserNotFoundException("User with id " + id + " not found");
+        });
+        userRepository.delete(user);
+        log.info("[deleteUser]-Service user deleted successfully");
+    }
 }
