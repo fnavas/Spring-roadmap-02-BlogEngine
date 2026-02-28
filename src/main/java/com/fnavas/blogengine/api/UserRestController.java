@@ -50,13 +50,13 @@ public class UserRestController {
         return ResponseEntity.created(location).body(createdUser);
     }
 
-    @PutMapping()
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<UserResponse> updateUser(@RequestBody UserRegisterRequest userRequest) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserRegisterRequest userRequest) {
         log.info("[updateUser]-RestController request to update user");
         log.debug("[updateUser]-RestController request to update user with" +
-                " username: {} password: {}", userRequest.username(), userRequest.password());
-        UserResponse updatedUser = userService.updateUser(userRequest); return ResponseEntity.ok(updatedUser);
+                "id: {} username: {} password: {}",id, userRequest.username(), userRequest.password());
+        UserResponse updatedUser = userService.updateUser(id, userRequest); return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")

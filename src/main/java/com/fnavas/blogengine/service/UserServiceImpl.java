@@ -80,15 +80,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and authentication.name == #userRequest.username())")
-    public UserResponse updateUser(UserRegisterRequest userRequest) {
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and @userSecurity.isUser(#id, authentication.name))")
+    public UserResponse updateUser(Long id, UserRegisterRequest userRequest) {
         log.info("[updateUser]-Service request to update user");
         log.debug("[updateUser]-Service request to update user with username: {}", userRequest.username());
-        User user = userRepository.findByUsername(userRequest.username()) .orElseThrow(() -> {
+        User user = userRepository.findById(id) .orElseThrow(() -> {
             log.warn("[updateUser]-Service user with username {} not found", userRequest.username());
             return new UserNotFoundException("User with username " + userRequest.username() + " not found");
         });
-        //TODO: change username
+        user.setUsername(userRequest.username());
         user.setPassword(encoder.encode(userRequest.password()));
         user.setUpdatedAt(LocalDateTime.now());
         User updatedUser = userRepository.save(user);
