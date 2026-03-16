@@ -1,7 +1,9 @@
 package com.fnavas.blogengine.service;
 
 import com.fnavas.blogengine.dto.request.PostCreateRequest;
+import com.fnavas.blogengine.dto.response.PostDetailResponse;
 import com.fnavas.blogengine.dto.response.PostResponse;
+import org.springframework.data.jpa.domain.Specification;
 import com.fnavas.blogengine.entity.Post;
 import com.fnavas.blogengine.entity.User;
 import com.fnavas.blogengine.exception.PostNotFoundException;
@@ -54,7 +56,7 @@ class PostServiceImplTest {
     @Test
     void getAllPosts_returnAllTasks() {
         List<Post> posts = List.of(new Post(), new Post(), new Post(), new Post());
-        when(postRepository.findAll()).thenReturn(posts);
+        when(postRepository.findAll(any(Specification.class))).thenReturn(posts);
         when(postMapper
                 .toResponse(any(Post.class)))
                 .thenReturn(new PostResponse(null, null, null, null, null));
@@ -62,25 +64,25 @@ class PostServiceImplTest {
         List<PostResponse> postResponses = postService.getAllPosts(null, null);
 
         assertEquals(4, postResponses.size());
-        verify(postRepository, Mockito.times(1)).findAll();
+        verify(postRepository, Mockito.times(1)).findAll(any(Specification.class));
     }
 
     @Test
     void getPostById_returnPostResponse() {
         Long id = 1L;
         Post mockPost = samplePost();
-        PostResponse mockPostResponse = samplePostResponse();
+        PostDetailResponse mockPostDetailResponse = new PostDetailResponse(1L, "Sample Title", "Sample Content", null, null);
         when(postRepository.findById(id)).thenReturn(Optional.of(mockPost));
-        when(postMapper.toResponse(mockPost)).thenReturn(mockPostResponse);
+        when(postMapper.toResponseDetail(mockPost)).thenReturn(mockPostDetailResponse);
 
-        PostResponse postResponse = postService.getPostById(id);
+        PostDetailResponse postResponse = postService.getPostById(id);
 
         assertNotNull(postResponse);
-        assertEquals(mockPostResponse.id(), postResponse.id());
-        assertEquals(mockPostResponse.title(), postResponse.title());
-        assertEquals(mockPostResponse.content(), postResponse.content());
+        assertEquals(mockPostDetailResponse.id(), postResponse.id());
+        assertEquals(mockPostDetailResponse.title(), postResponse.title());
+        assertEquals(mockPostDetailResponse.content(), postResponse.content());
         verify(postRepository, Mockito.times(1)).findById(id);
-        verify(postMapper, Mockito.times(1)).toResponse(mockPost);
+        verify(postMapper, Mockito.times(1)).toResponseDetail(mockPost);
     }
 
     @Test

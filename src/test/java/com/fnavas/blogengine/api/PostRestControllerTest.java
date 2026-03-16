@@ -1,5 +1,6 @@
 package com.fnavas.blogengine.api;
 
+import com.fnavas.blogengine.dto.response.PostDetailResponse;
 import com.fnavas.blogengine.dto.response.PostResponse;
 import com.fnavas.blogengine.service.JwtService;
 import com.fnavas.blogengine.service.PostService;
@@ -42,7 +43,7 @@ class PostRestControllerTest {
     @WithMockUser
     void getAllPosts_shouldReturnsOk() throws Exception {
         PostResponse mockPostResponse = samplepostResponse();
-        Mockito.when(postService.getAllPosts(null)).thenReturn(List.of(mockPostResponse));
+        Mockito.when(postService.getAllPosts(null, null)).thenReturn(List.of(mockPostResponse));
 
         mockMvc.perform(get("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -57,8 +58,8 @@ class PostRestControllerTest {
     @WithMockUser
     void getPostById_shouldReturnsOk() throws Exception {
         Long id = 1L;
-        PostResponse mockPostResponse = samplepostResponse();
-        Mockito.when(postService.getPostById(id)).thenReturn(mockPostResponse);
+        PostDetailResponse mockPostDetailResponse = new PostDetailResponse(1L, "Title", "Content", null, null);
+        Mockito.when(postService.getPostById(id)).thenReturn(mockPostDetailResponse);
 
         mockMvc.perform(get("/api/v1/posts/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -72,9 +73,10 @@ class PostRestControllerTest {
     void getPostsByAuthor_shouldReturnOk() throws Exception {
         String author = "author";
         PostResponse mockPostResponse = samplepostResponse();
-        Mockito.when(postService.getPostsByAuthor(author)).thenReturn(List.of(mockPostResponse));
+        Mockito.when(postService.getAllPosts(author, null)).thenReturn(List.of(mockPostResponse));
 
-        mockMvc.perform(get("/api/v1/posts/author/{author}", author)
+        mockMvc.perform(get("/api/v1/posts")
+                .param("author", author)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(1));
@@ -85,9 +87,10 @@ class PostRestControllerTest {
     void getPostsByTitle_shouldReturnOk() throws Exception {
         String title = "title";
         PostResponse mockPostResponse = samplepostResponse();
-        Mockito.when(postService.getPostsByTitle(title)).thenReturn(List.of(mockPostResponse));
+        Mockito.when(postService.getAllPosts(null, title)).thenReturn(List.of(mockPostResponse));
 
-        mockMvc.perform(get("/api/v1/posts/title/{title}", title)
+        mockMvc.perform(get("/api/v1/posts")
+                .param("title", title)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(1));
