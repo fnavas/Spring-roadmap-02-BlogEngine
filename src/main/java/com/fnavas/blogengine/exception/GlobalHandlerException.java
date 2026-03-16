@@ -12,6 +12,17 @@ import java.time.LocalDateTime;
 @Slf4j
 public class GlobalHandlerException {
 
+    @ExceptionHandler(value = CommentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCommentNotFoundException(CommentNotFoundException ex) {
+        log.error("Comment not found exception: {}", ex.getMessage());
+        return ResponseEntity.status(404).body(ErrorResponse.builder()
+                        .code(404)
+                        .message(ex.getMessage())
+                        .error("Comment Not Found")
+                        .timestamp(LocalDateTime.now())
+                        .build());
+    }
+
     @ExceptionHandler(value = PostNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePostNotFoundException(PostNotFoundException ex) {
         log.error("Post not found exception: {}", ex.getMessage());
