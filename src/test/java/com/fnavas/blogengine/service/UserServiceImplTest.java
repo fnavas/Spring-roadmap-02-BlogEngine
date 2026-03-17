@@ -135,4 +135,63 @@ void getUserByUsername_ok_shouldReturnUserResponse() {
         verify(userMapper, never()).toEntity(any(UserRegisterRequest.class));
         verify(userMapper, never()).toResponse(any(User.class));
     }
+
+    @Test
+    void updateUser_ok_shouldReturnUserResponse() {
+        Long id = 1L;
+        UserRegisterRequest request = new UserRegisterRequest("newusername", "newpassword");
+        User existingUser = new User();
+        existingUser.setUsername("oldusername");
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(encoder.encode(request.password())).thenReturn("encodedpassword");
+        when(userRepository.save(any(User.class))).thenReturn(existingUser);
+        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(id, "newusername", Role.ROLE_USER));
+
+        UserResponse result = userService.updateUser(id, request);
+
+        assertNotNull(result);
+        assertEquals("newusername", result.username());
+        verify(userRepository, times(1)).findById(id);
+        verify(encoder, times(1)).encode(request.password());
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(userMapper, times(1)).toResponse(any(User.class));
+    }
+
+    @Test
+    void updateUser_userNotFound_shouldThrowException() {
+        Long id = 1L;
+        UserRegisterRequest request = new UserRegisterRequest("newusername", "newpassword");
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> userService.updateUser(id, request));
+
+        assertEquals("User with username newusername not found", ex.getMessage());
+        verify(userRepository, times(1)).findById(id);
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void deleteUser_ok_shouldDeleteUser() {
+        Long id = 1L;
+        User user = new User();
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+
+        assertDoesNotThrow(() -> userService.deleteUser(id));
+
+        verify(userRepository, times(1)).findById(id);
+        verify(userRepository, times(1)).delete(user);
+    }
+
+    @Test
+    void deleteUser_userNotFound_shouldThrowException() {
+        Long id = 1L;
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> userService.deleteUser(id));
+
+        assertEquals("User with id " + id + " not found", ex.getMessage());
+        verify(userRepository, times(1)).findById(id);
+        verify(userRepository, never()).delete(any(User.class));
+    }
 }
