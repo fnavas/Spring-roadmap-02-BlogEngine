@@ -45,7 +45,9 @@ Standard layered Spring Boot REST API with JWT authentication.
 - JWT Bearer token (1-hour expiration); stateless session
 - Two roles: `ROLE_USER` and `ROLE_ADMIN`
 - Public: `GET /api/v1/posts/**`, `/api/v1/auth/**`, `/api/v1/users` (registration), Swagger endpoints
-- `PostSecurity` and `UserSecurity` beans are injected into `@PreAuthorize` expressions to enforce ownership checks (users can only modify their own posts/accounts)
+- `PostSecurity`, `UserSecurity`, and `CommentSecurity` beans are injected into `@PreAuthorize` expressions to enforce ownership checks (users can only modify their own posts/comments/accounts)
+- `@PreAuthorize` checks live on service methods (not controllers) for posts/comments; controllers have a coarser role check as a first gate
+- Use `hasAnyRole('ADMIN', 'USER')` (no `ROLE_` prefix) — `hasAnyRole` adds the prefix automatically
 
 **Testing strategy:**
 - Unit tests use `@ExtendWith(MockitoExtension.class)` with mocked repositories
@@ -57,6 +59,21 @@ Standard layered Spring Boot REST API with JWT authentication.
 MySQL 8.0 runs via Docker on port **3307** (mapped from container's 3306). The app connects with credentials `blogengine/blogengine` to database `blogenginedb`.
 
 `src/main/resources/data.sql` seeds 10 users (1 admin, 9 regular), sample posts, and comments on every startup (`spring.jpa.hibernate.ddl-auto=create`, so the schema is recreated each run).
+
+## Known Issues
+
+> See `CODE_REVIEW.md` for the full detailed report.
+
+**Critical bugs to fix:**
+- `CustomAuthEntryPoint.java:11` and `CustomAccessDeniedHandler.java:12` — wrong import `tools.jackson.databind.ObjectMapper`; must be `com.fasterxml.jackson.databind.ObjectMapper`.
+- `JwtService.java:26` — `signWith(SignatureAlgorithm.HS256, SECRET_KEY)` uses raw string; must use `signWith(getSigningKey())` to be consistent with validation.
+- `UserRestController.java:54,63` — `hasAnyRole('ROLE_USER', 'ROLE_ADMIN')` is wrong (double prefix); use `hasAnyRole('USER', 'ADMIN')`.
+
+**High-priority gaps:**
+- All `@RequestBody` parameters in controllers are missing `@Valid` — bean validation is never triggered.
+- `UserRegisterRequest` and `CommentRequest` have no validation annotations (null/empty accepted).
+- JWT secret key is hardcoded in `JwtService.java:18` — must be externalized.
+- Debug logs print plaintext passwords in `UserServiceImpl.java:32` and `UserRestController.java:47`.
 
 ## Key Dependencies
 
