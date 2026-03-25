@@ -2,6 +2,7 @@ package com.fnavas.blogengine.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +14,17 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class GlobalHandlerException {
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        log.warn("Authentication failed: bad credentials");
+        return ResponseEntity.status(401).body(ErrorResponse.builder()
+                .code(401)
+                .message("Invalid username or password")
+                .error("Unauthorized")
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
@@ -75,8 +87,8 @@ public class GlobalHandlerException {
     @ExceptionHandler(UserWithUsernameException.class)
     public ResponseEntity<ErrorResponse> handleUserWithUsernameException(UserWithUsernameException ex) {
         log.error("User with username exception: {}", ex.getMessage());
-        return ResponseEntity.status(400).body(ErrorResponse.builder()
-                .code(400)
+        return ResponseEntity.status(409).body(ErrorResponse.builder()
+                .code(409)
                 .message(ex.getMessage())
                 .error("User Already Exists")
                 .timestamp(LocalDateTime.now())

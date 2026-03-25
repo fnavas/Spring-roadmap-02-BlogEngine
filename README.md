@@ -60,10 +60,14 @@ Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 **Seeded credentials:**
 
+All seeded users share the same password: `1234`
+
 | Username | Password | Role |
 |----------|----------|------|
-| `admin`  | `admin123` | ADMIN |
-| `user1`  | `user123`  | USER  |
+| `admin`  | `1234` | ADMIN |
+| `fnavas` | `1234` | USER  |
+| `sarah_jenkins` | `1234` | USER  |
+| `michael_smith` | `1234` | USER  |
 
 **Stop the database:**
 ```bash

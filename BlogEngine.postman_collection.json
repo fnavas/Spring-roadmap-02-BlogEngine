@@ -1,0 +1,1135 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Blog Engine REST API",
+    "description": "Complete test collection for the Blog Engine REST API.\n\n**How to use:**\n1. Set the `base_url` variable to your server (default: http://localhost:8080).\n2. Run **Login as Admin** or **Login as User** — the token is saved automatically.\n3. All authenticated requests use the saved token via the `{{admin_token}}` or `{{user_token}}` variables.\n4. Run **Create Post** before testing Update/Delete Post — the post ID is saved automatically.\n5. Run **Create Comment** before testing Update/Delete Comment — the comment ID is saved automatically.\n\n**All seeded users share the same password:** `1234`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",    "value": "http://localhost:8080", "type": "string" },
+    { "key": "admin_token", "value": "", "type": "string" },
+    { "key": "user_token",  "value": "", "type": "string" },
+    { "key": "post_id",     "value": "1", "type": "string" },
+    { "key": "comment_id",  "value": "1", "type": "string" }
+  ],
+  "item": [
+
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response has token', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('token');",
+                  "    pm.expect(body.token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "pm.test('Content-Type is JSON', () => {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('admin_token', pm.response.json().token);",
+                  "    console.log('Admin token saved.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/auth", "host": ["{{base_url}}"], "path": ["api", "v1", "auth"] }
+          }
+        },
+        {
+          "name": "Login as User (fnavas)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response has token', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('token');",
+                  "    pm.expect(body.token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('user_token', pm.response.json().token);",
+                  "    console.log('User token saved.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"fnavas\",\n  \"password\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/auth", "host": ["{{base_url}}"], "path": ["api", "v1", "auth"] }
+          }
+        },
+        {
+          "name": "Login - Invalid credentials (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Error response has required fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('code', 401);",
+                  "    pm.expect(body).to.have.property('error');",
+                  "    pm.expect(body).to.have.property('message');",
+                  "    pm.expect(body).to.have.property('timestamp');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"wrong_password\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/auth", "host": ["{{base_url}}"], "path": ["api", "v1", "auth"] }
+          }
+        },
+        {
+          "name": "Login - Validation error - blank fields (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Error response has required fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('code', 400);",
+                  "    pm.expect(body).to.have.property('error');",
+                  "    pm.expect(body).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"\",\n  \"password\": \"\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/auth", "host": ["{{base_url}}"], "path": ["api", "v1", "auth"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get all users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is an array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "pm.test('Each user has id and username', () => {",
+                  "    pm.response.json().forEach(u => {",
+                  "        pm.expect(u).to.have.property('id');",
+                  "        pm.expect(u).to.have.property('username');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/users", "host": ["{{base_url}}"], "path": ["api", "v1", "users"] }
+          }
+        },
+        {
+          "name": "Search user by username",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is an array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "pm.test('All results contain the search term', () => {",
+                  "    pm.response.json().forEach(u => {",
+                  "        pm.expect(u.username.toLowerCase()).to.include('sarah');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/users?username=sarah",
+              "host": ["{{base_url}}"], "path": ["api", "v1", "users"],
+              "query": [{ "key": "username", "value": "sarah" }]
+            }
+          }
+        },
+        {
+          "name": "Get user by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('User has expected fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id', 1);",
+                  "    pm.expect(body).to.have.property('username', 'admin');",
+                  "});",
+                  "pm.test('Response does not expose password', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('password');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/users/1", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "1"] }
+          }
+        },
+        {
+          "name": "Get user by ID - Not found (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404 Not Found', () => pm.response.to.have.status(404));",
+                  "pm.test('Error response has required fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('code', 404);",
+                  "    pm.expect(body).to.have.property('error');",
+                  "    pm.expect(body).to.have.property('message');",
+                  "    pm.expect(body).to.have.property('timestamp');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/users/9999", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "9999"] }
+          }
+        },
+        {
+          "name": "Register new user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Created user has expected fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id');",
+                  "    pm.expect(body).to.have.property('username', 'new_user');",
+                  "});",
+                  "pm.test('Response does not expose password', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('password');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"new_user\",\n  \"password\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/users", "host": ["{{base_url}}"], "path": ["api", "v1", "users"] }
+          }
+        },
+        {
+          "name": "Register - Username already exists (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Error response has required fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('code', 409);",
+                  "    pm.expect(body).to.have.property('error');",
+                  "    pm.expect(body).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/users", "host": ["{{base_url}}"], "path": ["api", "v1", "users"] }
+          }
+        },
+        {
+          "name": "Register - Validation error - short fields (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Error response has required fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('code', 400);",
+                  "    pm.expect(body).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"ab\",\n  \"password\": \"\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/users", "host": ["{{base_url}}"], "path": ["api", "v1", "users"] }
+          }
+        },
+        {
+          "name": "Update user (owner - user token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Username was updated', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('username', 'fnavas_updated');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{user_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"fnavas_updated\",\n  \"password\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/users/2", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "2"] }
+          }
+        },
+        {
+          "name": "Update any user (admin token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response has id and username', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id');",
+                  "    pm.expect(body).to.have.property('username');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"sarah_jenkins\",\n  \"password\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/users/3", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "3"] }
+          }
+        },
+        {
+          "name": "Update user - Forbidden (403) - wrong owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 Forbidden', () => pm.response.to.have.status(403));",
+                  "pm.test('Error response has required fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('code', 403);",
+                  "    pm.expect(body).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{user_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"hacked\",\n  \"password\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/users/1", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "1"] }
+          }
+        },
+        {
+          "name": "Update user - Unauthorized (401) - no token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Error response has code 401', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"hacked\",\n  \"password\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/users/1", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "1"] }
+          }
+        },
+        {
+          "name": "Delete user (admin token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 204 No Content', () => pm.response.to.have.status(204));",
+                  "pm.test('Response body is empty', () => {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/users/20", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "20"] }
+          }
+        },
+        {
+          "name": "Delete user - Forbidden (403) - wrong owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 Forbidden', () => pm.response.to.have.status(403));",
+                  "pm.test('Error response has code 403', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{user_token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/users/1", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "1"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Get all posts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is an array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "pm.test('Each post has id, title and content', () => {",
+                  "    pm.response.json().forEach(p => {",
+                  "        pm.expect(p).to.have.property('id');",
+                  "        pm.expect(p).to.have.property('title');",
+                  "        pm.expect(p).to.have.property('content');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/posts", "host": ["{{base_url}}"], "path": ["api", "v1", "posts"] }
+          }
+        },
+        {
+          "name": "Filter posts by author",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is an array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "pm.test('All posts belong to author admin', () => {",
+                  "    pm.response.json().forEach(p => {",
+                  "        pm.expect(p.author.toLowerCase()).to.include('admin');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/posts?author=admin",
+              "host": ["{{base_url}}"], "path": ["api", "v1", "posts"],
+              "query": [{ "key": "author", "value": "admin" }]
+            }
+          }
+        },
+        {
+          "name": "Filter posts by title",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is an array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "pm.test('All posts title contain search term', () => {",
+                  "    pm.response.json().forEach(p => {",
+                  "        pm.expect(p.title.toLowerCase()).to.include('spring');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/posts?title=spring",
+              "host": ["{{base_url}}"], "path": ["api", "v1", "posts"],
+              "query": [{ "key": "title", "value": "spring" }]
+            }
+          }
+        },
+        {
+          "name": "Filter posts by author and title",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is an array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/posts?author=admin&title=docker",
+              "host": ["{{base_url}}"], "path": ["api", "v1", "posts"],
+              "query": [{ "key": "author", "value": "admin" }, { "key": "title", "value": "docker" }]
+            }
+          }
+        },
+        {
+          "name": "Get post by ID (includes comments)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Post has expected fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id');",
+                  "    pm.expect(body).to.have.property('title');",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body).to.have.property('comments');",
+                  "});",
+                  "pm.test('Comments field is an array', () => {",
+                  "    pm.expect(pm.response.json().comments).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/posts/{{post_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "{{post_id}}"] }
+          }
+        },
+        {
+          "name": "Get post by ID - Not found (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404 Not Found', () => pm.response.to.have.status(404));",
+                  "pm.test('Error response has required fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('code', 404);",
+                  "    pm.expect(body).to.have.property('error');",
+                  "    pm.expect(body).to.have.property('message');",
+                  "    pm.expect(body).to.have.property('timestamp');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/posts/9999", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "9999"] }
+          }
+        },
+        {
+          "name": "Create post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Created post has expected fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id');",
+                  "    pm.expect(body).to.have.property('title', 'My First Blog Post');",
+                  "    pm.expect(body).to.have.property('content');",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('post_id', pm.response.json().id);",
+                  "    console.log('post_id saved: ' + pm.response.json().id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{user_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"My First Blog Post\",\n  \"content\": \"This is the content of my first blog post created via Postman.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts", "host": ["{{base_url}}"], "path": ["api", "v1", "posts"] }
+          }
+        },
+        {
+          "name": "Create post - Validation error - blank fields (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Error response has code 400', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{user_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"\",\n  \"content\": \"\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts", "host": ["{{base_url}}"], "path": ["api", "v1", "posts"] }
+          }
+        },
+        {
+          "name": "Create post - Unauthorized (401) - no token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Error response has code 401', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Unauthorized Post\",\n  \"content\": \"This should fail.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts", "host": ["{{base_url}}"], "path": ["api", "v1", "posts"] }
+          }
+        },
+        {
+          "name": "Update post (owner - user token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Title was updated', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('title', 'My Updated Blog Post');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{user_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"My Updated Blog Post\",\n  \"content\": \"Updated content via Postman.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts/{{post_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "{{post_id}}"] }
+          }
+        },
+        {
+          "name": "Update post - Forbidden (403) - wrong owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 Forbidden', () => pm.response.to.have.status(403));",
+                  "pm.test('Error response has code 403', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{user_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Hacked Post\",\n  \"content\": \"This should fail.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts/1", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1"] }
+          }
+        },
+        {
+          "name": "Update any post (admin token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Title was updated', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('title', 'Admin Updated Post');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Admin Updated Post\",\n  \"content\": \"Admin can update any post.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts/{{post_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "{{post_id}}"] }
+          }
+        },
+        {
+          "name": "Delete post (owner - user token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 204 No Content', () => pm.response.to.have.status(204));",
+                  "pm.test('Response body is empty', () => {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{user_token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/posts/{{post_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "{{post_id}}"] }
+          }
+        },
+        {
+          "name": "Delete post - Forbidden (403) - wrong owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 Forbidden', () => pm.response.to.have.status(403));",
+                  "pm.test('Error response has code 403', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{user_token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/posts/1", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Get comments for a post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is an array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "pm.test('Each comment has id and text', () => {",
+                  "    pm.response.json().forEach(c => {",
+                  "        pm.expect(c).to.have.property('id');",
+                  "        pm.expect(c).to.have.property('text');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments"] }
+          }
+        },
+        {
+          "name": "Get comments - Post not found (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404 Not Found', () => pm.response.to.have.status(404));",
+                  "pm.test('Error response has code 404', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/posts/9999/comments", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "9999", "comments"] }
+          }
+        },
+        {
+          "name": "Create comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Created comment has expected fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id');",
+                  "    pm.expect(body).to.have.property('text', 'Great post! Really enjoyed reading this.');",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('comment_id', pm.response.json().id);",
+                  "    console.log('comment_id saved: ' + pm.response.json().id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{user_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Great post! Really enjoyed reading this.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments"] }
+          }
+        },
+        {
+          "name": "Create comment - Validation error - blank text (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Error response has code 400', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{user_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments"] }
+          }
+        },
+        {
+          "name": "Create comment - Unauthorized (401) - no token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Error response has code 401', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"This should fail.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments"] }
+          }
+        },
+        {
+          "name": "Update comment (owner - user token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Comment text was updated', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('text', 'Updated comment text via Postman.');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{user_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Updated comment text via Postman.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/{{comment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "{{comment_id}}"] }
+          }
+        },
+        {
+          "name": "Update comment - Forbidden (403) - wrong owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 Forbidden', () => pm.response.to.have.status(403));",
+                  "pm.test('Error response has code 403', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{user_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"This should fail.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/1", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "1"] }
+          }
+        },
+        {
+          "name": "Update any comment (admin token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Comment text was updated', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('text', 'Admin updated this comment.');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Admin updated this comment.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/{{comment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "{{comment_id}}"] }
+          }
+        },
+        {
+          "name": "Delete comment (owner - user token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 204 No Content', () => pm.response.to.have.status(204));",
+                  "pm.test('Response body is empty', () => {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{user_token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/{{comment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "{{comment_id}}"] }
+          }
+        },
+        {
+          "name": "Delete comment - Forbidden (403) - wrong owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 Forbidden', () => pm.response.to.have.status(403));",
+                  "pm.test('Error response has code 403', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('code', 403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{user_token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/1", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "1"] }
+          }
+        },
+        {
+          "name": "Delete any comment (admin token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 204 No Content', () => pm.response.to.have.status(204));",
+                  "pm.test('Response body is empty', () => {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/{{comment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "{{comment_id}}"] }
+          }
+        }
+      ]
+    }
+
+  ]
+}
