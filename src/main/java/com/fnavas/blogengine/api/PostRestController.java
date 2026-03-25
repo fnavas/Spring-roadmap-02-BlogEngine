@@ -4,6 +4,7 @@ import com.fnavas.blogengine.dto.request.PostCreateRequest;
 import com.fnavas.blogengine.dto.response.PostDetailResponse;
 import com.fnavas.blogengine.dto.response.PostResponse;
 import com.fnavas.blogengine.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class PostRestController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<PostResponse> createPost(@RequestBody PostCreateRequest postRequest) {
+    public ResponseEntity<PostResponse> createPost(@Valid @RequestBody PostCreateRequest postRequest) {
         log.info("[createPost]-RestController request to create a new post");
         log.debug("[createPost]-RestController request to create a new post: {}", postRequest);
         PostResponse createdPost = postService.createPost(postRequest);
@@ -50,7 +51,7 @@ public class PostRestController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostCreateRequest postRequest) {
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @Valid @RequestBody PostCreateRequest postRequest) {
         log.info("[updatePost]-RestController request to update post by id");
         log.debug("[updatePost]-RestController request to update post by id: {}, {}", id, postRequest);
         return ResponseEntity.ok().body(postService.updatePost(id, postRequest));

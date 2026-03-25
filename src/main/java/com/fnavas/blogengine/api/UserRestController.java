@@ -3,6 +3,7 @@ package com.fnavas.blogengine.api;
 import com.fnavas.blogengine.dto.request.UserRegisterRequest;
 import com.fnavas.blogengine.dto.response.UserResponse;
 import com.fnavas.blogengine.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +25,7 @@ public class UserRestController {
     public ResponseEntity<?> getAllUsers(@RequestParam(required = false) String username) {
         log.info("[getAllUsers]-RestController request to get all users");
         if (username != null && !username.isBlank()) {
-            log.info("[getAllUsers]-RestController request to get users by username containing ignore case");
-            log.debug("[getAllUsers]-RestController request to get users by username containing ignore case {}", username);
+            log.info("[getAllUsers]-RestController request to get user by username: {}", username);
             UserResponse user = userService.getUserByUsername(username);
             return ResponseEntity.ok(user);
         }
@@ -41,26 +41,23 @@ public class UserRestController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRegisterRequest userRequest) {
-        log.info("[createUser]-RestController request to create a new user");
-        log.debug("[createUser]-RestController request to create a new user with username: {}" +
-                " password: {}", userRequest.username(), userRequest.password());
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRegisterRequest userRequest) {
+        log.info("[createUser]-RestController request to create a new user with username: {}", userRequest.username());
         UserResponse createdUser = userService.createUser(userRequest);
         URI location = URI.create(String.format("/api/v1/users/%s", createdUser.id()));
         return ResponseEntity.created(location).body(createdUser);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserRegisterRequest userRequest) {
-        log.info("[updateUser]-RestController request to update user");
-        log.debug("[updateUser]-RestController request to update user with" +
-                "id: {} username: {} password: {}",id, userRequest.username(), userRequest.password());
-        UserResponse updatedUser = userService.updateUser(id, userRequest); return ResponseEntity.ok(updatedUser);
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UserRegisterRequest userRequest) {
+        log.info("[updateUser]-RestController request to update user with id: {}", id);
+        UserResponse updatedUser = userService.updateUser(id, userRequest);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         log.info("[deleteUser]-RestController request to delete user with id: {}", id);
         userService.deleteUser(id);

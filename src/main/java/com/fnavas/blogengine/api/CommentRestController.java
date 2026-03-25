@@ -3,7 +3,9 @@ package com.fnavas.blogengine.api;
 import com.fnavas.blogengine.dto.request.CommentRequest;
 import com.fnavas.blogengine.dto.response.CommentResponse;
 import com.fnavas.blogengine.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,19 +15,22 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/posts/{postId}/comments")
 @RequiredArgsConstructor
+@Slf4j
 public class CommentRestController {
 
     private final CommentService commentService;
 
     @GetMapping
     public ResponseEntity<List<CommentResponse>> getCommentsByPostId(@PathVariable Long postId) {
+        log.info("[getCommentsByPostId]-RestController request to get comments for postId: {}", postId);
         return ResponseEntity.ok(commentService.getCommentsByPostId(postId));
     }
 
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(
             @PathVariable Long postId,
-            @RequestBody CommentRequest request) {
+            @Valid @RequestBody CommentRequest request) {
+        log.info("[createComment]-RestController request to create comment for postId: {}", postId);
         return ResponseEntity.status(HttpStatus.CREATED).body(commentService.createComment(postId, request));
     }
 
@@ -33,7 +38,8 @@ public class CommentRestController {
     public ResponseEntity<CommentResponse> updateComment(
             @PathVariable Long postId,
             @PathVariable Long commentId,
-            @RequestBody CommentRequest request) {
+            @Valid @RequestBody CommentRequest request) {
+        log.info("[updateComment]-RestController request to update commentId: {}", commentId);
         return ResponseEntity.ok(commentService.updateComment(commentId, request));
     }
 
@@ -41,6 +47,7 @@ public class CommentRestController {
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long postId,
             @PathVariable Long commentId) {
+        log.info("[deleteComment]-RestController request to delete commentId: {}", commentId);
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }

@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Getter @Setter @NoArgsConstructor @ToString
+@Getter @Setter @NoArgsConstructor @ToString(exclude = "password")
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(name = "UK_USER_USERNAME", columnNames = "username")})
 public class User extends BaseEntity implements UserDetails {

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -63,31 +64,6 @@ public class PostServiceImpl implements PostService {
         );
         log.debug("[getPostById]-Service get post by id: {}", post);
         return postMapper.toResponseDetail(post);
-    }
-
-    @Override
-    public List<PostResponse> getPostsByAuthor(String username) {
-        log.info("[getPostsByAuthor]-Service request to get posts by author");
-        log.debug("[getPostsByAuthor]-Service request to get posts by author: {}", username);
-        User author = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
-        log.debug("[getPostsByAuthor]-Service get author: {}", author);
-        List<Post> posts = postRepository.findByAuthor(author);
-        log.debug("[getPostsByAuthor]-Service get posts by author: {}", posts);
-        return posts.stream()
-                .map(postMapper::toResponse)
-                .toList();
-    }
-
-    @Override
-    public List<PostResponse> getPostsByTitle(String title) {
-        log.info("[getPostsByTitle]-Service request to get posts by title");
-        log.debug("[getPostsByTitle]-Service request to get posts by title: {}", title);
-        List<Post> posts = postRepository.findByTitleContainingIgnoreCase(title);
-        log.debug("[getPostsByTitle]-Service get posts by title: {}", posts);
-        return posts.stream()
-                .map(postMapper::toResponse)
-                .toList();
     }
 
     @Override

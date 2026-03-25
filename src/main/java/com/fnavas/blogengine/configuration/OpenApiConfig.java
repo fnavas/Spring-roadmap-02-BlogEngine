@@ -14,9 +14,9 @@ public class OpenApiConfig {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
                 .info(new Info()
-                        .title("API con Spring Security")
+                        .title("Blog Engine REST API")
                         .version("1.0")
-                        .description("Autenticación HTTP Basic"))
+                        .description("RESTful Blog Engine API with JWT Bearer Authentication. Obtain a token via POST /api/v1/auth and use it as a Bearer token in the Authorization header."))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,

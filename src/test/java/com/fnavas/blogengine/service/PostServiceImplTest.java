@@ -8,6 +8,7 @@ import com.fnavas.blogengine.entity.Post;
 import com.fnavas.blogengine.entity.User;
 import com.fnavas.blogengine.exception.PostNotFoundException;
 import com.fnavas.blogengine.exception.UserNotFoundException;
+
 import com.fnavas.blogengine.mapper.PostMapper;
 import com.fnavas.blogengine.repository.PostRepository;
 import com.fnavas.blogengine.repository.UserRepository;
@@ -94,47 +95,6 @@ class PostServiceImplTest {
 
         assertEquals("Post not found with id: " +  id, exception.getMessage());
         verify(postRepository, Mockito.times(1)).findById(id);
-    }
-
-    @Test
-    void getPostsByAuthor_returnPostResponses() {
-        String username = "author";
-        User mockUser = new User();
-        mockUser.setUsername(username);
-        List<Post> posts = List.of(samplePost(), samplePost());
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(mockUser));
-        when(postRepository.findByAuthor(mockUser)).thenReturn(posts);
-        when(postMapper.toResponse(any(Post.class))).thenReturn(samplePostResponse());
-
-        List<PostResponse> postResponses = postService.getPostsByAuthor(username);
-
-        assertEquals(2, postResponses.size());
-        verify(userRepository, times(1)).findByUsername(username);
-        verify(postRepository, times(1)).findByAuthor(mockUser);
-        verify(postMapper, times(2)).toResponse(any(Post.class));
-    }
-
-    @Test
-    void  getPostsByAuthor_notFound_returnPostNotFoundException() {
-        String username = "author";
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> postService.getPostsByAuthor(username));
-        assertEquals("User not found with username: " + username, exception.getMessage());
-        verify(userRepository, times(1)).findByUsername(username);
-    }
-
-    @Test
-    void getPostsByTitle_returnPostResponses() {
-        String title = "Sample";
-        List<Post> posts = List.of(samplePost(), samplePost());
-        when(postRepository.findByTitleContainingIgnoreCase(title)).thenReturn(posts);
-        when(postMapper.toResponse(any(Post.class))).thenReturn(samplePostResponse());
-
-        List<PostResponse> postResponses = postService.getPostsByTitle(title);
-
-        assertEquals(2, postResponses.size());
-        verify(postRepository, times(1)).findByTitleContainingIgnoreCase(title);
-        verify(postMapper, times(2)).toResponse(any(Post.class));
     }
 
     @Test

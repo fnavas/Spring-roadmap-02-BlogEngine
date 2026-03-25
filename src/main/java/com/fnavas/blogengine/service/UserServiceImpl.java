@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,16 +27,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(UserRegisterRequest userRequest) {
-        log.info("[createUser]-Service creating new user");
-        log.debug("[createUser]-Service creating new user with username:" +
-                " {} password:{}", userRequest.username(), userRequest.password());
+        log.info("[createUser]-Service creating new user with username: {}", userRequest.username());
         if (userRepository.findByUsername(userRequest.username()).isPresent()) {
             log.warn("[createUser]-Service user with username {} already exists", userRequest.username());
             throw new UserWithUsernameException("User with username " + userRequest.username() + " already exists");
         }
         User newUser = userMapper.toEntity(userRequest);
         newUser.setRole(Role.ROLE_USER);
-        //TODO: enhance password encoding
         newUser.setPassword(encoder.encode(userRequest.password()));
         User savedUser = userRepository.save(newUser);
         log.info("[createUser]-Service user created successfully");
@@ -90,7 +86,6 @@ public class UserServiceImpl implements UserService {
         });
         user.setUsername(userRequest.username());
         user.setPassword(encoder.encode(userRequest.password()));
-        user.setUpdatedAt(LocalDateTime.now());
         User updatedUser = userRepository.save(user);
         log.info("[updateUser]-Service user updated successfully");
         log.debug("[updateUser]-Service user updated with id: {}", updatedUser.getId());

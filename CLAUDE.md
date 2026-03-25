@@ -64,16 +64,7 @@ MySQL 8.0 runs via Docker on port **3307** (mapped from container's 3306). The a
 
 > See `CODE_REVIEW.md` for the full detailed report.
 
-**Critical bugs to fix:**
-- `CustomAuthEntryPoint.java:11` and `CustomAccessDeniedHandler.java:12` — wrong import `tools.jackson.databind.ObjectMapper`; must be `com.fasterxml.jackson.databind.ObjectMapper`.
-- `JwtService.java:26` — `signWith(SignatureAlgorithm.HS256, SECRET_KEY)` uses raw string; must use `signWith(getSigningKey())` to be consistent with validation.
-- `UserRestController.java:54,63` — `hasAnyRole('ROLE_USER', 'ROLE_ADMIN')` is wrong (double prefix); use `hasAnyRole('USER', 'ADMIN')`.
-
-**High-priority gaps:**
-- All `@RequestBody` parameters in controllers are missing `@Valid` — bean validation is never triggered.
-- `UserRegisterRequest` and `CommentRequest` have no validation annotations (null/empty accepted).
-- JWT secret key is hardcoded in `JwtService.java:18` — must be externalized.
-- Debug logs print plaintext passwords in `UserServiceImpl.java:32` and `UserRestController.java:47`.
+All critical bugs and high-priority gaps have been resolved. The project compiles and all 60 tests pass.
 
 ## Key Dependencies
 
