@@ -31,5 +31,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build()));
+        response.getWriter().flush();
     }
 }

@@ -34,5 +34,6 @@ public class CustomAuthEntryPoint implements AuthenticationEntryPoint {
                 .timestamp(LocalDateTime.now())
                 .build()
         ));
+        response.getWriter().flush();
     }
 }

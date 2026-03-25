@@ -1,7 +1,9 @@
 package com.fnavas.blogengine.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +16,17 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class GlobalHandlerException {
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
+        return ResponseEntity.status(403).body(ErrorResponse.builder()
+                .code(403)
+                .message(ex.getMessage())
+                .error("Forbidden")
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
@@ -91,6 +104,17 @@ public class GlobalHandlerException {
                 .code(409)
                 .message(ex.getMessage())
                 .error("User Already Exists")
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        log.error("Data integrity violation: {}", ex.getMessage());
+        return ResponseEntity.status(409).body(ErrorResponse.builder()
+                .code(409)
+                .message("Cannot delete this resource because it has associated data")
+                .error("Conflict")
                 .timestamp(LocalDateTime.now())
                 .build());
     }

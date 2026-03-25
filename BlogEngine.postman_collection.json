@@ -9,8 +9,9 @@
     { "key": "base_url",    "value": "http://localhost:8080", "type": "string" },
     { "key": "admin_token", "value": "", "type": "string" },
     { "key": "user_token",  "value": "", "type": "string" },
-    { "key": "post_id",     "value": "1", "type": "string" },
-    { "key": "comment_id",  "value": "1", "type": "string" }
+    { "key": "post_id",        "value": "1", "type": "string" },
+    { "key": "comment_id",    "value": "1", "type": "string" },
+    { "key": "new_user_id",   "value": "", "type": "string" }
   ],
   "item": [
 
@@ -260,7 +261,11 @@
                   "});",
                   "pm.test('Response does not expose password', () => {",
                   "    pm.expect(pm.response.json()).to.not.have.property('password');",
-                  "});"
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('new_user_id', pm.response.json().id);",
+                  "    console.log('new_user_id saved: ' + pm.response.json().id);",
+                  "}"
                 ],
                 "type": "text/javascript"
               }
@@ -332,8 +337,8 @@
               "script": {
                 "exec": [
                   "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Username was updated', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('username', 'fnavas_updated');",
+                  "pm.test('Username remains fnavas', () => {",
+                  "    pm.expect(pm.response.json()).to.have.property('username', 'fnavas');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -346,7 +351,7 @@
               { "key": "Content-Type", "value": "application/json" },
               { "key": "Authorization", "value": "Bearer {{user_token}}" }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"username\": \"fnavas_updated\",\n  \"password\": \"1234\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"fnavas\",\n  \"password\": \"1234\"\n}" },
             "url": { "raw": "{{base_url}}/api/v1/users/2", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "2"] }
           }
         },
@@ -448,7 +453,7 @@
           "request": {
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
-            "url": { "raw": "{{base_url}}/api/v1/users/20", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "20"] }
+            "url": { "raw": "{{base_url}}/api/v1/users/{{new_user_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "{{new_user_id}}"] }
           }
         },
         {
