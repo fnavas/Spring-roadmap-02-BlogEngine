@@ -525,7 +525,7 @@
                   "});",
                   "pm.test('All posts belong to author admin', () => {",
                   "    pm.response.json().forEach(p => {",
-                  "        pm.expect(p.author.toLowerCase()).to.include('admin');",
+                  "        pm.expect(p.author.username.toLowerCase()).to.include('admin');",
                   "    });",
                   "});"
                 ],
@@ -1130,7 +1130,7 @@
           "request": {
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
-            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/{{comment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "{{comment_id}}"] }
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/1", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "1"] }
           }
         }
       ]
