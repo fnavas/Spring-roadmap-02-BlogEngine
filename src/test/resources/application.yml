@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: test
+
+jwt:
+  secret: Z3VlbnRhX2VzdGFfY2xhdmVfc3VwZXJfc2VndXJhX3BhcmFfandrX2RlbW9fMjAyNg==

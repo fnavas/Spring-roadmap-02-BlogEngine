@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: BlogEngine
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:Z3VlbnRhX2VzdGFfY2xhdmVfc3VwZXJfc2VndXJhX3BhcmFfandrX2RlbW9fMjAyNg==}
+
+logging:
+  level:
+    com.fnavas.blogengine: INFO
