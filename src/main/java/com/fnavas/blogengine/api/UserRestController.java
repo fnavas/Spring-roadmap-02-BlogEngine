@@ -25,9 +25,8 @@ public class UserRestController {
     public ResponseEntity<?> getAllUsers(@RequestParam(required = false) String username) {
         log.info("[getAllUsers]-RestController request to get all users");
         if (username != null && !username.isBlank()) {
-            log.info("[getAllUsers]-RestController request to get user by username: {}", username);
-            UserResponse user = userService.getUserByUsername(username);
-            return ResponseEntity.ok(user);
+            log.info("[getAllUsers]-RestController request to search users by username: {}", username);
+            return ResponseEntity.ok(userService.searchByUsername(username));
         }
         List<UserResponse> users = userService.getAllUsers();
         return ResponseEntity.ok(users);

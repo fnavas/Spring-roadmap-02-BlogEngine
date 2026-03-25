@@ -12,7 +12,7 @@ public interface UserService {
 
     UserResponse getUserById(Long id);
 
-    UserResponse getUserByUsername(String username);
+    List<UserResponse> searchByUsername(String username);
 
     UserResponse updateUser(Long id, UserRegisterRequest userRequest);
 

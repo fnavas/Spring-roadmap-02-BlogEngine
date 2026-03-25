@@ -71,14 +71,15 @@ class UserRestControllerTest {
 
     @Test
     @WithMockUser
-    void getUserByUsername_shouldReturnOk() throws Exception {
-        Mockito.when(userService.getUserByUsername("testuser")).thenReturn(sampleUserResponse());
+    void searchByUsername_shouldReturnOk() throws Exception {
+        Mockito.when(userService.searchByUsername("testuser")).thenReturn(List.of(sampleUserResponse()));
 
         mockMvc.perform(get("/api/v1/users")
                 .param("username", "testuser")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("testuser"));
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].username").value("testuser"));
     }
 
     @Test

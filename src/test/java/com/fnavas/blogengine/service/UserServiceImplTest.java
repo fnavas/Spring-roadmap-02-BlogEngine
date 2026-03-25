@@ -77,28 +77,32 @@ void getUserById_userNotFound_shouldThrowException() {
     }
 
     @Test
-void getUserByUsername_ok_shouldReturnUserResponse() {
-        String username = "testuser";
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(new User()));
-        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(1L, username, Role.ROLE_USER));
+    void searchByUsername_ok_shouldReturnMatchingUsers() {
+        String username = "test";
+        when(userRepository.findByUsernameContainingIgnoreCase(username)).thenReturn(List.of(new User()));
+        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(1L, "testuser", Role.ROLE_USER));
 
-        UserResponse userResponse = userService.getUserByUsername(username);
+        List<UserResponse> result = userService.searchByUsername(username);
 
-        assertNotNull(userResponse);
-        assertEquals(username, userResponse.username());
-        verify(userRepository, times(1)).findByUsername(username);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("testuser", result.get(0).username());
+        verify(userRepository, times(1)).findByUsernameContainingIgnoreCase(username);
         verify(userMapper, times(1)).toResponse(any(User.class));
     }
+
     @Test
-    void getUserByUsername_userNotFound_shouldThrowException() {
-        String username = "testuser";
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+    void searchByUsername_noMatch_shouldReturnEmptyList() {
+        String username = "nobody";
+        when(userRepository.findByUsernameContainingIgnoreCase(username)).thenReturn(List.of());
 
-        RuntimeException ex = assertThrows(UserNotFoundException.class, () -> userService.getUserByUsername(username));
+        List<UserResponse> result = userService.searchByUsername(username);
 
-        assertEquals("User with username "+username+" not found", ex.getMessage());
-        verify(userRepository, times(1)).findByUsername(username);
-        verify(userMapper, never()).toResponse(any(User.class)); }
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(userRepository, times(1)).findByUsernameContainingIgnoreCase(username);
+        verify(userMapper, never()).toResponse(any(User.class));
+    }
 
     @Test
     void createUser_ok_shouldReturnUserReponse() {

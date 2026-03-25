@@ -64,15 +64,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUserByUsername(String username) {
-        log.info("[getUserByUsername]-Service request to get user by username");
-        log.debug("[getUserByUsername]-Service request to get user by username: {}", username);
-        User user = userRepository.findByUsername(username) .orElseThrow(() -> {
-            log.warn("[getUserByUsername]-Service user with username {} not found", username);
-            return new UserNotFoundException("User with username " + username + " not found"); });
-        log.info("[getUserByUsername]-Service user retrieved successfully");
-        log.debug("[getUserByUsername]-Service user retrieved with id: {}", user.getId());
-        return userMapper.toResponse(user);
+    public List<UserResponse> searchByUsername(String username) {
+        log.info("[searchByUsername]-Service request to search users by username: {}", username);
+        List<User> users = userRepository.findByUsernameContainingIgnoreCase(username);
+        log.info("[searchByUsername]-Service found {} users matching '{}'", users.size(), username);
+        return users.stream().map(userMapper::toResponse).toList();
     }
 
     @Override
