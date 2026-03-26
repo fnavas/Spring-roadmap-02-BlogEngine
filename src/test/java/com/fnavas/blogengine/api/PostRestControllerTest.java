@@ -170,4 +170,28 @@ class PostRestControllerTest {
                 .with(csrf()))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @WithMockUser(roles = {"USER"})
+    void createPost_withBlankTitle_shouldReturn400() throws Exception {
+        PostCreateRequest request = new PostCreateRequest("", "Some content");
+
+        mockMvc.perform(post("/api/v1/posts")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = {"USER"})
+    void createPost_withBlankContent_shouldReturn400() throws Exception {
+        PostCreateRequest request = new PostCreateRequest("Some title", "");
+
+        mockMvc.perform(post("/api/v1/posts")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
 }

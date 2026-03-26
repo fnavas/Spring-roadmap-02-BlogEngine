@@ -145,4 +145,28 @@ class UserRestControllerTest {
                 .with(csrf()))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @WithMockUser
+    void createUser_withBlankUsername_shouldReturn400() throws Exception {
+        UserRegisterRequest request = new UserRegisterRequest("", "validpass");
+
+        mockMvc.perform(post("/api/v1/users")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser
+    void createUser_withShortPassword_shouldReturn400() throws Exception {
+        UserRegisterRequest request = new UserRegisterRequest("validuser", "ab");
+
+        mockMvc.perform(post("/api/v1/users")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
 }

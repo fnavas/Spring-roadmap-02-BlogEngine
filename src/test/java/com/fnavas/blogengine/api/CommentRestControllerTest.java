@@ -135,4 +135,17 @@ class CommentRestControllerTest {
                 .with(csrf()))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @WithMockUser
+    void createComment_withBlankText_shouldReturn400() throws Exception {
+        Long postId = 1L;
+        CommentRequest request = new CommentRequest("");
+
+        mockMvc.perform(post("/api/v1/posts/{postId}/comments", postId)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
 }
