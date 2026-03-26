@@ -14,13 +14,14 @@ import com.fnavas.blogengine.repository.PostRepository;
 import com.fnavas.blogengine.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -35,16 +36,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CommentResponse> getCommentsByPostId(Long postId) {
+    public Page<CommentResponse> getCommentsByPostId(Long postId, Pageable pageable) {
         log.info("[getCommentsByPostId]-Service request to get comments by postId");
         log.debug("[getCommentsByPostId]-postId: {}", postId);
         if (!postRepository.existsById(postId)) {
             throw new PostNotFoundException("Post not found with id: " + postId);
         }
-        List<Comment> comments = commentRepository.findByPostId(postId);
-        return comments.stream()
-                .map(commentMapper::toResponse)
-                .toList();
+        Page<Comment> comments = commentRepository.findByPostId(postId, pageable);
+        return comments.map(commentMapper::toResponse);
     }
 
     @Override

@@ -19,9 +19,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,29 +62,33 @@ class UserRestControllerTest {
         return new UserResponse(1L, "testuser", Role.ROLE_USER);
     }
 
+    private Page<UserResponse> sampleUserPage() {
+        return new PageImpl<>(List.of(sampleUserResponse()));
+    }
+
     @Test
     @WithMockUser
     void getAllUsers_shouldReturnOk() throws Exception {
-        Mockito.when(userService.getAllUsers()).thenReturn(List.of(sampleUserResponse()));
+        Mockito.when(userService.getAllUsers(any(Pageable.class))).thenReturn(sampleUserPage());
 
         mockMvc.perform(get("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].username").value("testuser"));
+                .andExpect(jsonPath("$.content.size()").value(1))
+                .andExpect(jsonPath("$.content[0].username").value("testuser"));
     }
 
     @Test
     @WithMockUser
     void searchByUsername_shouldReturnOk() throws Exception {
-        Mockito.when(userService.searchByUsername("testuser")).thenReturn(List.of(sampleUserResponse()));
+        Mockito.when(userService.searchByUsername(eq("testuser"), any(Pageable.class))).thenReturn(sampleUserPage());
 
         mockMvc.perform(get("/api/v1/users")
                 .param("username", "testuser")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].username").value("testuser"));
+                .andExpect(jsonPath("$.content.size()").value(1))
+                .andExpect(jsonPath("$.content[0].username").value("testuser"));
     }
 
     @Test

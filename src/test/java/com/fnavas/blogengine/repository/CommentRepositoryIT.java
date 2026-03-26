@@ -7,8 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -61,14 +61,14 @@ class CommentRepositoryIT {
         comment2.setAuthor(author);
         commentRepository.save(comment2);
 
-        List<Comment> comments = commentRepository.findByPostId(savedPost.getId());
+        Page<Comment> comments = commentRepository.findByPostId(savedPost.getId(), Pageable.unpaged());
 
-        assertEquals(2, comments.size());
+        assertEquals(2, comments.getTotalElements());
     }
 
     @Test
     void findByPostId_whenNoComments_returnEmptyList() {
-        List<Comment> comments = commentRepository.findByPostId(savedPost.getId());
+        Page<Comment> comments = commentRepository.findByPostId(savedPost.getId(), Pageable.unpaged());
 
         assertTrue(comments.isEmpty());
     }
@@ -89,7 +89,7 @@ class CommentRepositoryIT {
         commentOnOtherPost.setAuthor(author);
         commentRepository.save(commentOnOtherPost);
 
-        List<Comment> comments = commentRepository.findByPostId(savedPost.getId());
+        Page<Comment> comments = commentRepository.findByPostId(savedPost.getId(), Pageable.unpaged());
 
         assertTrue(comments.isEmpty());
     }

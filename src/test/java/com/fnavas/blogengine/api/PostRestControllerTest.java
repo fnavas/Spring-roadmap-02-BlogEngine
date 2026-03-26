@@ -19,9 +19,15 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,18 +63,22 @@ class PostRestControllerTest {
         return new PostResponse(1L, "Title", "Content", null, null);
     }
 
+    private Page<PostResponse> samplePostPage() {
+        return new PageImpl<>(List.of(samplePostResponse()));
+    }
+
     @Test
     @WithMockUser
     void getAllPosts_shouldReturnsOk() throws Exception {
-        Mockito.when(postService.getAllPosts(null, null)).thenReturn(List.of(samplePostResponse()));
+        Mockito.when(postService.getAllPosts(isNull(), isNull(), any(Pageable.class))).thenReturn(samplePostPage());
 
         mockMvc.perform(get("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].title").value("Title"))
-                .andExpect(jsonPath("$[0].content").value("Content"));
+                .andExpect(jsonPath("$.content.size()").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(1L))
+                .andExpect(jsonPath("$.content[0].title").value("Title"))
+                .andExpect(jsonPath("$.content[0].content").value("Content"));
     }
 
     @Test
@@ -88,26 +98,26 @@ class PostRestControllerTest {
     @WithMockUser
     void getPostsByAuthor_shouldReturnOk() throws Exception {
         String author = "author";
-        Mockito.when(postService.getAllPosts(author, null)).thenReturn(List.of(samplePostResponse()));
+        Mockito.when(postService.getAllPosts(eq(author), isNull(), any(Pageable.class))).thenReturn(samplePostPage());
 
         mockMvc.perform(get("/api/v1/posts")
                 .param("author", author)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1));
+                .andExpect(jsonPath("$.content.size()").value(1));
     }
 
     @Test
     @WithMockUser
     void getPostsByTitle_shouldReturnOk() throws Exception {
         String title = "title";
-        Mockito.when(postService.getAllPosts(null, title)).thenReturn(List.of(samplePostResponse()));
+        Mockito.when(postService.getAllPosts(isNull(), eq(title), any(Pageable.class))).thenReturn(samplePostPage());
 
         mockMvc.perform(get("/api/v1/posts")
                 .param("title", title)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1));
+                .andExpect(jsonPath("$.content.size()").value(1));
     }
 
     @Test

@@ -7,12 +7,15 @@ import com.fnavas.blogengine.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -23,12 +26,13 @@ public class PostRestController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts(
+    public ResponseEntity<Page<PostResponse>> getAllPosts(
             @RequestParam(required = false) String author,
-            @RequestParam(required = false) String title){
+            @RequestParam(required = false) String title,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("[getAllPosts]-RestController request to get all posts");
         log.debug("[getAllPosts]-RestController request to get all posts by author: {}", author);
-        return ResponseEntity.ok().body(postService.getAllPosts(author, title));
+        return ResponseEntity.ok().body(postService.getAllPosts(author, title, pageable));
     }
 
     @GetMapping("/{id}")

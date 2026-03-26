@@ -15,11 +15,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,16 +43,16 @@ class UserServiceImplTest {
     private UserServiceImpl userService;
 
     @Test
-    void getAllUsers_ok_shouldReturnListOfUserResponses() {
-        when(userRepository.findAll()).thenReturn(java.util.List.of(new User()));
+    void getAllUsers_ok_shouldReturnPageOfUserResponses() {
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(new User())));
         when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(1L, "testuser", Role.ROLE_USER));
 
-        List<UserResponse> users = userService.getAllUsers();
+        Page<UserResponse> users = userService.getAllUsers(Pageable.unpaged());
 
         assertNotNull(users);
-        assertEquals(1, users.size());
-        assertEquals("testuser", users.get(0).username());
-        verify(userRepository, times(1)).findAll();
+        assertEquals(1, users.getTotalElements());
+        assertEquals("testuser", users.getContent().get(0).username());
+        verify(userRepository, times(1)).findAll(any(Pageable.class));
         verify(userMapper, times(1)).toResponse(any(User.class));
     }
 
@@ -79,28 +84,30 @@ void getUserById_userNotFound_shouldThrowException() {
     @Test
     void searchByUsername_ok_shouldReturnMatchingUsers() {
         String username = "test";
-        when(userRepository.findByUsernameContainingIgnoreCase(username)).thenReturn(List.of(new User()));
+        when(userRepository.findByUsernameContainingIgnoreCase(eq(username), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(new User())));
         when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(1L, "testuser", Role.ROLE_USER));
 
-        List<UserResponse> result = userService.searchByUsername(username);
+        Page<UserResponse> result = userService.searchByUsername(username, Pageable.unpaged());
 
         assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("testuser", result.get(0).username());
-        verify(userRepository, times(1)).findByUsernameContainingIgnoreCase(username);
+        assertEquals(1, result.getTotalElements());
+        assertEquals("testuser", result.getContent().get(0).username());
+        verify(userRepository, times(1)).findByUsernameContainingIgnoreCase(eq(username), any(Pageable.class));
         verify(userMapper, times(1)).toResponse(any(User.class));
     }
 
     @Test
-    void searchByUsername_noMatch_shouldReturnEmptyList() {
+    void searchByUsername_noMatch_shouldReturnEmptyPage() {
         String username = "nobody";
-        when(userRepository.findByUsernameContainingIgnoreCase(username)).thenReturn(List.of());
+        when(userRepository.findByUsernameContainingIgnoreCase(eq(username), any(Pageable.class)))
+                .thenReturn(Page.empty());
 
-        List<UserResponse> result = userService.searchByUsername(username);
+        Page<UserResponse> result = userService.searchByUsername(username, Pageable.unpaged());
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
-        verify(userRepository, times(1)).findByUsernameContainingIgnoreCase(username);
+        verify(userRepository, times(1)).findByUsernameContainingIgnoreCase(eq(username), any(Pageable.class));
         verify(userMapper, never()).toResponse(any(User.class));
     }
 

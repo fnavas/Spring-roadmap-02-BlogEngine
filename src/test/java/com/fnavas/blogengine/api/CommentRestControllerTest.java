@@ -19,6 +19,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -58,17 +62,21 @@ class CommentRestControllerTest {
         return new CommentResponse(1L, "Test comment", new AuthorResponse("testuser"), null);
     }
 
+    private Page<CommentResponse> sampleCommentPage() {
+        return new PageImpl<>(List.of(sampleCommentResponse()));
+    }
+
     @Test
     @WithMockUser
     void getCommentsByPostId_shouldReturnOk() throws Exception {
         Long postId = 1L;
-        Mockito.when(commentService.getCommentsByPostId(postId)).thenReturn(List.of(sampleCommentResponse()));
+        Mockito.when(commentService.getCommentsByPostId(eq(postId), any(Pageable.class))).thenReturn(sampleCommentPage());
 
         mockMvc.perform(get("/api/v1/posts/{postId}/comments", postId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].text").value("Test comment"));
+                .andExpect(jsonPath("$.content.size()").value(1))
+                .andExpect(jsonPath("$.content[0].text").value("Test comment"));
     }
 
     @Test

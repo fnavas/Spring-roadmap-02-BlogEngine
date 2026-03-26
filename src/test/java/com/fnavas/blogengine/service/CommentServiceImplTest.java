@@ -22,11 +22,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,18 +63,18 @@ class CommentServiceImplTest {
     // --- getCommentsByPostId ---
 
     @Test
-    void getCommentsByPostId_ok_returnsListOfCommentResponses() {
+    void getCommentsByPostId_ok_returnsPageOfCommentResponses() {
         Long postId = 1L;
-        List<Comment> comments = List.of(sampleComment(), sampleComment());
+        Page<Comment> comments = new PageImpl<>(List.of(sampleComment(), sampleComment()));
         when(postRepository.existsById(postId)).thenReturn(true);
-        when(commentRepository.findByPostId(postId)).thenReturn(comments);
+        when(commentRepository.findByPostId(eq(postId), any(Pageable.class))).thenReturn(comments);
         when(commentMapper.toResponse(any(Comment.class))).thenReturn(sampleCommentResponse());
 
-        List<CommentResponse> result = commentService.getCommentsByPostId(postId);
+        Page<CommentResponse> result = commentService.getCommentsByPostId(postId, Pageable.unpaged());
 
-        assertEquals(2, result.size());
+        assertEquals(2, result.getTotalElements());
         verify(postRepository, times(1)).existsById(postId);
-        verify(commentRepository, times(1)).findByPostId(postId);
+        verify(commentRepository, times(1)).findByPostId(eq(postId), any(Pageable.class));
         verify(commentMapper, times(2)).toResponse(any(Comment.class));
     }
 
@@ -79,10 +84,10 @@ class CommentServiceImplTest {
         when(postRepository.existsById(postId)).thenReturn(false);
 
         PostNotFoundException ex = assertThrows(PostNotFoundException.class,
-                () -> commentService.getCommentsByPostId(postId));
+                () -> commentService.getCommentsByPostId(postId, Pageable.unpaged()));
 
         assertEquals("Post not found with id: " + postId, ex.getMessage());
-        verify(commentRepository, never()).findByPostId(any());
+        verify(commentRepository, never()).findByPostId(any(), any());
     }
 
     // --- createComment ---

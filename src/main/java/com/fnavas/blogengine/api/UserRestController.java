@@ -6,12 +6,14 @@ import com.fnavas.blogengine.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -22,14 +24,15 @@ public class UserRestController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers(@RequestParam(required = false) String username) {
+    public ResponseEntity<Page<UserResponse>> getAllUsers(
+            @RequestParam(required = false) String username,
+            @PageableDefault(size = 10, sort = "username") Pageable pageable) {
         log.info("[getAllUsers]-RestController request to get all users");
         if (username != null && !username.isBlank()) {
             log.info("[getAllUsers]-RestController request to search users by username: {}", username);
-            return ResponseEntity.ok(userService.searchByUsername(username));
+            return ResponseEntity.ok(userService.searchByUsername(username, pageable));
         }
-        List<UserResponse> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.getAllUsers(pageable));
     }
 
     @GetMapping("/{id}")

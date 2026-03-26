@@ -10,12 +10,12 @@ import com.fnavas.blogengine.mapper.UserMapper;
 import com.fnavas.blogengine.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Slf4j
@@ -45,13 +45,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
         log.info("[getAllUsers]-Service request to get all users");
-        List<User> users = userRepository.findAll();
+        Page<User> users = userRepository.findAll(pageable);
         log.info("[getAllUsers]-Service users retrieved successfully");
-        return users.stream()
-                .map(userMapper::toResponse)
-                .toList();
+        return users.map(userMapper::toResponse);
     }
 
     @Override
@@ -69,11 +67,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserResponse> searchByUsername(String username) {
+    public Page<UserResponse> searchByUsername(String username, Pageable pageable) {
         log.info("[searchByUsername]-Service request to search users by username: {}", username);
-        List<User> users = userRepository.findByUsernameContainingIgnoreCase(username);
-        log.info("[searchByUsername]-Service found {} users matching '{}'", users.size(), username);
-        return users.stream().map(userMapper::toResponse).toList();
+        Page<User> users = userRepository.findByUsernameContainingIgnoreCase(username, pageable);
+        log.info("[searchByUsername]-Service found {} users matching '{}'", users.getTotalElements(), username);
+        return users.map(userMapper::toResponse);
     }
 
     @Override

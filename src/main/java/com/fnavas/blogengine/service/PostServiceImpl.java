@@ -12,6 +12,8 @@ import com.fnavas.blogengine.repository.PostRepository;
 import com.fnavas.blogengine.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -19,7 +21,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
 
 
@@ -34,7 +35,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PostResponse> getAllPosts(String author, String title) {
+    public Page<PostResponse> getAllPosts(String author, String title, Pageable pageable) {
         log.info("[getAllPosts]-Service request to get all posts");
         Specification<Post> spec = Specification.where((root, query, cb) ->  cb.conjunction());
         if (author != null && !author.isBlank()) {
@@ -50,11 +51,9 @@ public class PostServiceImpl implements PostService {
             spec = spec.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
         }
-        List<Post> posts = postRepository.findAll(spec);
-        log.debug("[getAllPosts]-Service get all posts: {}", posts);
-        return posts.stream()
-                .map(postMapper::toResponse)
-                .toList();
+        Page<Post> posts = postRepository.findAll(spec, pageable);
+        log.debug("[getAllPosts]-Service get all posts count: {}", posts.getTotalElements());
+        return posts.map(postMapper::toResponse);
     }
 
     @Override

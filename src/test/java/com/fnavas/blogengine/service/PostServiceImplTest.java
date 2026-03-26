@@ -3,6 +3,9 @@ package com.fnavas.blogengine.service;
 import com.fnavas.blogengine.dto.request.PostCreateRequest;
 import com.fnavas.blogengine.dto.response.PostDetailResponse;
 import com.fnavas.blogengine.dto.response.PostResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import com.fnavas.blogengine.entity.Post;
 import com.fnavas.blogengine.entity.User;
@@ -56,16 +59,16 @@ class PostServiceImplTest {
 
     @Test
     void getAllPosts_returnAllTasks() {
-        List<Post> posts = List.of(new Post(), new Post(), new Post(), new Post());
-        when(postRepository.findAll(any(Specification.class))).thenReturn(posts);
+        Page<Post> posts = new PageImpl<>(List.of(new Post(), new Post(), new Post(), new Post()));
+        when(postRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(posts);
         when(postMapper
                 .toResponse(any(Post.class)))
                 .thenReturn(new PostResponse(null, null, null, null, null));
 
-        List<PostResponse> postResponses = postService.getAllPosts(null, null);
+        Page<PostResponse> postResponses = postService.getAllPosts(null, null, Pageable.unpaged());
 
-        assertEquals(4, postResponses.size());
-        verify(postRepository, Mockito.times(1)).findAll(any(Specification.class));
+        assertEquals(4, postResponses.getTotalElements());
+        verify(postRepository, Mockito.times(1)).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test
