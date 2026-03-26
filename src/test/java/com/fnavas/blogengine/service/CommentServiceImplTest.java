@@ -105,6 +105,7 @@ class CommentServiceImplTest {
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+        when(commentMapper.toEntity(request)).thenReturn(new Comment());
         when(commentRepository.save(any(Comment.class))).thenReturn(savedComment);
         when(commentMapper.toResponse(savedComment)).thenReturn(mockResponse);
 
@@ -115,6 +116,7 @@ class CommentServiceImplTest {
         assertEquals(mockResponse.text(), result.text());
         verify(postRepository, times(1)).findById(postId);
         verify(userRepository, times(1)).findByUsername("testuser");
+        verify(commentMapper, times(1)).toEntity(request);
         verify(commentRepository, times(1)).save(any(Comment.class));
         verify(commentMapper, times(1)).toResponse(savedComment);
     }

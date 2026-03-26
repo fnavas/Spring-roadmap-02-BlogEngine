@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class CommentRestController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<CommentResponse> createComment(
             @PathVariable Long postId,
             @Valid @RequestBody CommentRequest request) {
@@ -35,6 +37,7 @@ public class CommentRestController {
     }
 
     @PutMapping("/{commentId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<CommentResponse> updateComment(
             @PathVariable Long postId,
             @PathVariable Long commentId,
@@ -44,6 +47,7 @@ public class CommentRestController {
     }
 
     @DeleteMapping("/{commentId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long postId,
             @PathVariable Long commentId) {

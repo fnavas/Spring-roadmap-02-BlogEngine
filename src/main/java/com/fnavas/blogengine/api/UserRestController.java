@@ -22,7 +22,7 @@ public class UserRestController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<?> getAllUsers(@RequestParam(required = false) String username) {
+    public ResponseEntity<List<UserResponse>> getAllUsers(@RequestParam(required = false) String username) {
         log.info("[getAllUsers]-RestController request to get all users");
         if (username != null && !username.isBlank()) {
             log.info("[getAllUsers]-RestController request to search users by username: {}", username);

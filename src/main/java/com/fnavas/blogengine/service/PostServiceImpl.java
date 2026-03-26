@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +33,7 @@ public class PostServiceImpl implements PostService {
     private final PostMapper postMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<PostResponse> getAllPosts(String author, String title) {
         log.info("[getAllPosts]-Service request to get all posts");
         Specification<Post> spec = Specification.where((root, query, cb) ->  cb.conjunction());
@@ -56,6 +58,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PostDetailResponse getPostById(Long id) {
         log.info("[getPostById]-Service request to get post by id");
         log.debug("[getPostById]-Service request to get post by id: {}", id);
@@ -67,6 +70,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public PostResponse createPost(PostCreateRequest postRequest) {
         log.info("[createPost]-Service request to create post");
@@ -87,6 +91,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('ADMIN') or @postSecurity.isAuthor(#id, authentication.name)")
     public PostResponse updatePost(Long id, PostCreateRequest postRequest) {
         log.info("[updatePost]-Service request to update post");
@@ -103,6 +108,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('ADMIN') or @postSecurity.isAuthor(#id, authentication.name)")
     public void deletePost(Long id) {
         log.info("[deletePost]-Service request to delete post");

@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<CommentResponse> getCommentsByPostId(Long postId) {
         log.info("[getCommentsByPostId]-Service request to get comments by postId");
         log.debug("[getCommentsByPostId]-postId: {}", postId);
@@ -46,6 +48,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public CommentResponse createComment(Long postId, CommentRequest request) {
         log.info("[createComment]-Service request to create comment");
@@ -60,8 +63,7 @@ public class CommentServiceImpl implements CommentService {
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
-        Comment comment = new Comment();
-        comment.setText(request.text());
+        Comment comment = commentMapper.toEntity(request);
         comment.setPost(post);
         comment.setAuthor(author);
 
@@ -71,6 +73,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('ADMIN') or @commentSecurity.isAuthor(#commentId, authentication.name)")
     public CommentResponse updateComment(Long commentId, CommentRequest request) {
         log.info("[updateComment]-Service request to update comment");
@@ -86,6 +89,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('ADMIN') or @commentSecurity.isAuthor(#commentId, authentication.name)")
     public void deleteComment(Long commentId) {
         log.info("[deleteComment]-Service request to delete comment");

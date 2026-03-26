@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder encoder;
 
     @Override
+    @Transactional
     public UserResponse createUser(UserRegisterRequest userRequest) {
         log.info("[createUser]-Service creating new user with username: {}", userRequest.username());
         if (userRepository.findByUsername(userRequest.username()).isPresent()) {
@@ -42,6 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         log.info("[getAllUsers]-Service request to get all users");
         List<User> users = userRepository.findAll();
@@ -52,6 +55,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
         log.info("[getUserById]-Service request to get user by id: {}", id);
         User user = userRepository.findById(id) .orElseThrow(() -> {
@@ -64,6 +68,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponse> searchByUsername(String username) {
         log.info("[searchByUsername]-Service request to search users by username: {}", username);
         List<User> users = userRepository.findByUsernameContainingIgnoreCase(username);
@@ -72,6 +77,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and @userSecurity.isUser(#id, authentication.name))")
     public UserResponse updateUser(Long id, UserRegisterRequest userRequest) {
         log.info("[updateUser]-Service request to update user");
@@ -89,6 +95,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and @userSecurity.isUser(#id, authentication.name))")
     public void deleteUser(Long id) {
         log.info("[deleteUser]-Service request to delete user with id: {}", id);
