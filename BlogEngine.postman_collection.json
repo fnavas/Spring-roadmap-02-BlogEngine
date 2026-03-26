@@ -146,11 +146,14 @@
               "script": {
                 "exec": [
                   "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is an array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "pm.test('Response is paginated', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body.content).to.be.an('array');",
+                  "    pm.expect(body).to.have.property('totalElements');",
                   "});",
                   "pm.test('Each user has id and username', () => {",
-                  "    pm.response.json().forEach(u => {",
+                  "    pm.response.json().content.forEach(u => {",
                   "        pm.expect(u).to.have.property('id');",
                   "        pm.expect(u).to.have.property('username');",
                   "    });",
@@ -173,11 +176,14 @@
               "script": {
                 "exec": [
                   "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is an array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "pm.test('Response is paginated', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body.content).to.be.an('array');",
+                  "    pm.expect(body).to.have.property('totalElements');",
                   "});",
                   "pm.test('All results contain the search term', () => {",
-                  "    pm.response.json().forEach(u => {",
+                  "    pm.response.json().content.forEach(u => {",
                   "        pm.expect(u.username.toLowerCase()).to.include('sarah');",
                   "    });",
                   "});"
@@ -492,11 +498,14 @@
               "script": {
                 "exec": [
                   "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is an array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "pm.test('Response is paginated', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body.content).to.be.an('array');",
+                  "    pm.expect(body).to.have.property('totalElements');",
                   "});",
                   "pm.test('Each post has id, title and content', () => {",
-                  "    pm.response.json().forEach(p => {",
+                  "    pm.response.json().content.forEach(p => {",
                   "        pm.expect(p).to.have.property('id');",
                   "        pm.expect(p).to.have.property('title');",
                   "        pm.expect(p).to.have.property('content');",
@@ -520,11 +529,14 @@
               "script": {
                 "exec": [
                   "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is an array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "pm.test('Response is paginated', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body.content).to.be.an('array');",
+                  "    pm.expect(body).to.have.property('totalElements');",
                   "});",
                   "pm.test('All posts belong to author admin', () => {",
-                  "    pm.response.json().forEach(p => {",
+                  "    pm.response.json().content.forEach(p => {",
                   "        pm.expect(p.author.username.toLowerCase()).to.include('admin');",
                   "    });",
                   "});"
@@ -550,11 +562,14 @@
               "script": {
                 "exec": [
                   "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is an array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "pm.test('Response is paginated', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body.content).to.be.an('array');",
+                  "    pm.expect(body).to.have.property('totalElements');",
                   "});",
                   "pm.test('All posts title contain search term', () => {",
-                  "    pm.response.json().forEach(p => {",
+                  "    pm.response.json().content.forEach(p => {",
                   "        pm.expect(p.title.toLowerCase()).to.include('spring');",
                   "    });",
                   "});"
@@ -580,8 +595,11 @@
               "script": {
                 "exec": [
                   "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is an array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "pm.test('Response is paginated', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body.content).to.be.an('array');",
+                  "    pm.expect(body).to.have.property('totalElements');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -868,11 +886,14 @@
               "script": {
                 "exec": [
                   "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is an array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "pm.test('Response is paginated', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body.content).to.be.an('array');",
+                  "    pm.expect(body).to.have.property('totalElements');",
                   "});",
                   "pm.test('Each comment has id and text', () => {",
-                  "    pm.response.json().forEach(c => {",
+                  "    pm.response.json().content.forEach(c => {",
                   "        pm.expect(c).to.have.property('id');",
                   "        pm.expect(c).to.have.property('text');",
                   "    });",
@@ -937,6 +958,38 @@
               { "key": "Authorization", "value": "Bearer {{user_token}}" }
             ],
             "body": { "mode": "raw", "raw": "{\n  \"text\": \"Great post! Really enjoyed reading this.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments"] }
+          }
+        },
+        {
+          "name": "Create comment (admin token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Created comment has expected fields', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id');",
+                  "    pm.expect(body).to.have.property('text', 'Admin comment for ownership tests.');",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('admin_comment_id', pm.response.json().id);",
+                  "    console.log('admin_comment_id saved: ' + pm.response.json().id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Admin comment for ownership tests.\"\n}" },
             "url": { "raw": "{{base_url}}/api/v1/posts/1/comments", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments"] }
           }
         },
@@ -1038,7 +1091,7 @@
               { "key": "Authorization", "value": "Bearer {{user_token}}" }
             ],
             "body": { "mode": "raw", "raw": "{\n  \"text\": \"This should fail.\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/1", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "1"] }
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/{{admin_comment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "{{admin_comment_id}}"] }
           }
         },
         {
@@ -1108,7 +1161,7 @@
           "request": {
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{user_token}}" }],
-            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/1", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "1"] }
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/{{admin_comment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "{{admin_comment_id}}"] }
           }
         },
         {
@@ -1130,7 +1183,7 @@
           "request": {
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
-            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/1", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "1"] }
+            "url": { "raw": "{{base_url}}/api/v1/posts/1/comments/{{admin_comment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "posts", "1", "comments", "{{admin_comment_id}}"] }
           }
         }
       ]
