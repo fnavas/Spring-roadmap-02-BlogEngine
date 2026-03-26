@@ -6,6 +6,10 @@
 
 ---
 
+> **Estado actual (2026-03-26):** todos los bugs críticos y los issues de alta/media prioridad han sido resueltos. Ver tabla de prioridades en la sección 9 para el estado detallado de cada item.
+
+---
+
 ## Resumen Ejecutivo
 
 El proyecto tiene una arquitectura bien estructurada y sigue buenas prácticas de Spring Boot. Sin embargo, hay **dos bugs críticos de compilación**, varios problemas de seguridad y múltiples inconsistencias que deben corregirse antes de considerar el proyecto listo para producción.
@@ -389,33 +393,37 @@ Actualmente los tests de controlador usan `@WebMvcTest` con mocks. Añadir tests
 
 ## 9. TABLA DE PRIORIDADES
 
-| # | Problema | Archivo(s) | Severidad | Esfuerzo |
-|---|----------|------------|-----------|----------|
-| 1 | Import incorrecto ObjectMapper | `CustomAuthEntryPoint.java:11`, `CustomAccessDeniedHandler.java:12` | CRÍTICO | Mínimo |
-| 2 | Inconsistencia signWith/getSigningKey JWT | `JwtService.java:26` | CRÍTICO | Mínimo |
-| 3 | `@Valid` ausente en controladores | `*RestController.java` (todos) | ALTO | Bajo |
-| 4 | Formato de roles incorrecto en UserRestController | `UserRestController.java:54,63` | ALTO | Mínimo |
-| 5 | Contraseñas en logs de debug | `UserServiceImpl.java:32`, `UserRestController.java:47` | ALTO | Mínimo |
-| 6 | Clave JWT hardcodeada | `JwtService.java:18` | ALTO | Bajo |
-| 7 | DTOs sin validación | `UserRegisterRequest.java`, `CommentRequest.java` | ALTO | Bajo |
-| 8 | Handler genérico de excepciones ausente | `GlobalHandlerException.java` | MEDIO | Medio |
-| 9 | `@ToString` expone password | `User.java:16` | MEDIO | Mínimo |
-| 10 | `setUpdatedAt` manual redundante | `UserServiceImpl.java:93` | BAJO | Mínimo |
-| 11 | Constructor manual en CommentServiceImpl | `CommentServiceImpl.java:63` | BAJO | Bajo |
-| 12 | Métodos huérfanos getPostsByAuthor/Title | `PostServiceImpl.java`, `PostService.java` | BAJO | Bajo |
-| 13 | Sin paginación en listados | `*ServiceImpl.java` (todos) | MEDIO | Medio |
-| 14 | Sin `@Transactional` en operaciones multi-paso | `CommentServiceImpl.java` | MEDIO | Bajo |
-| 15 | Mensaje en español | `CustomUserDetailService.java` | BAJO | Mínimo |
+| # | Problema | Archivo(s) | Severidad | Estado |
+|---|----------|------------|-----------|--------|
+| 1 | Import incorrecto ObjectMapper | `CustomAuthEntryPoint.java:11`, `CustomAccessDeniedHandler.java:12` | CRÍTICO | ✅ Resuelto |
+| 2 | Inconsistencia signWith/getSigningKey JWT | `JwtService.java:26` | CRÍTICO | ✅ Resuelto |
+| 3 | `@Valid` ausente en controladores | `*RestController.java` (todos) | ALTO | ✅ Resuelto |
+| 4 | Formato de roles incorrecto en UserRestController | `UserRestController.java:54,63` | ALTO | ✅ Resuelto |
+| 5 | Contraseñas en logs de debug | `UserServiceImpl.java:32`, `UserRestController.java:47` | ALTO | ✅ Resuelto |
+| 6 | Clave JWT hardcodeada | `JwtService.java:18` | ALTO | ✅ Resuelto — externalizada a `application.yml` vía `${JWT_SECRET}` |
+| 7 | DTOs sin validación | `UserRegisterRequest.java`, `CommentRequest.java` | ALTO | ✅ Resuelto |
+| 8 | Handler genérico de excepciones ausente | `GlobalHandlerException.java` | MEDIO | ✅ Resuelto |
+| 9 | `@ToString` expone password | `User.java:16` | MEDIO | ✅ Resuelto — `@ToString(exclude = "password")` |
+| 10 | `setUpdatedAt` manual redundante | `UserServiceImpl.java:93` | BAJO | ✅ Resuelto |
+| 11 | Constructor manual en CommentServiceImpl | `CommentServiceImpl.java:63` | BAJO | ✅ Resuelto — usa `CommentMapper.toEntity()` |
+| 12 | Métodos huérfanos getPostsByAuthor/Title | `PostServiceImpl.java`, `PostService.java` | BAJO | ✅ Resuelto — reemplazados por `getAllPosts(author, title, pageable)` |
+| 13 | Sin paginación en listados | `*ServiceImpl.java` (todos) | MEDIO | ✅ Resuelto — `Page<T>` con `@PageableDefault` en los 3 endpoints |
+| 14 | Sin `@Transactional` en operaciones multi-paso | `*ServiceImpl.java` (todos) | MEDIO | ✅ Resuelto — `@Transactional` en mutaciones, `readOnly=true` en lecturas |
+| 15 | Mensaje en español | `CustomUserDetailService.java` | BAJO | ✅ Resuelto |
 
 ---
 
 ## 10. PUNTOS FUERTES DEL PROYECTO
 
 - Arquitectura en capas bien definida y consistente.
-- Uso correcto de MapStruct para el mapeo entidad-DTO.
-- Buena cobertura de tests unitarios en la capa de servicio.
+- Uso correcto de MapStruct para el mapeo entidad-DTO, incluyendo `toEntity` en todos los mappers.
+- 65 tests cubriendo servicios, controladores, repositorios y beans de seguridad.
+- Paginación completa con `Page<T>` y `@PageableDefault` en los tres endpoints de listado.
+- `@Transactional` y `@Transactional(readOnly=true)` aplicados correctamente en toda la capa de servicio.
 - Patrón de seguridad con beans `PostSecurity`, `UserSecurity`, `CommentSecurity` para `@PreAuthorize` es limpio y testeable.
+- `@PreAuthorize` presente tanto en controladores (primer gate) como en servicios (ownership check).
 - Logging estructurado con prefijos `[methodName]-Layer` en todos los servicios.
 - Uso de records de Java para los DTOs (inmutabilidad).
 - `@RestControllerAdvice` centraliza el manejo de errores correctamente.
 - `BaseEntity` con auditoría (`createdAt`, `updatedAt`) aplicada a todas las entidades.
+- Múltiples perfiles Spring (`dev`, `prod`, `test`) con credenciales externalizadas en producción.

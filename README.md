@@ -9,6 +9,7 @@ A secure, production-ready RESTful API for a blogging platform built with Spring
 - **Ownership checks** — Users can only modify their own posts, comments, and accounts
 - **Input validation** — Bean Validation (JSR-380) on all request DTOs
 - **Content filtering** — Filter posts by author and title using JPA Specifications
+- **Pagination** — All list endpoints return `Page<T>` with configurable `page`, `size`, and `sort` parameters
 - **Centralized error handling** — `@RestControllerAdvice` with typed exceptions and consistent `ErrorResponse`
 - **API documentation** — Swagger UI with Bearer token support
 
@@ -206,7 +207,7 @@ java -jar target/BlogEngine-0.0.1-SNAPSHOT.jar
 ### Users
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/api/v1/users` | Public | List users (or search by username) |
+| GET | `/api/v1/users` | Public | List users — supports `?username=`, `?page=`, `?size=`, `?sort=` |
 | GET | `/api/v1/users/{id}` | Public | Get user by ID |
 | POST | `/api/v1/users` | Public | Register new user |
 | PUT | `/api/v1/users/{id}` | Owner / Admin | Update user |
@@ -215,7 +216,7 @@ java -jar target/BlogEngine-0.0.1-SNAPSHOT.jar
 ### Posts
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/api/v1/posts` | Public | List posts (filter: `?author=`, `?title=`) |
+| GET | `/api/v1/posts` | Public | List posts — supports `?author=`, `?title=`, `?page=`, `?size=`, `?sort=` |
 | GET | `/api/v1/posts/{id}` | Public | Get post with comments |
 | POST | `/api/v1/posts` | Authenticated | Create post |
 | PUT | `/api/v1/posts/{id}` | Author / Admin | Update post |
@@ -224,7 +225,7 @@ java -jar target/BlogEngine-0.0.1-SNAPSHOT.jar
 ### Comments
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/api/v1/posts/{postId}/comments` | Public | List comments for a post |
+| GET | `/api/v1/posts/{postId}/comments` | Public | List comments — supports `?page=`, `?size=`, `?sort=` |
 | POST | `/api/v1/posts/{postId}/comments` | Authenticated | Create comment |
 | PUT | `/api/v1/posts/{postId}/comments/{id}` | Author / Admin | Update comment |
 | DELETE | `/api/v1/posts/{postId}/comments/{id}` | Author / Admin | Delete comment |
