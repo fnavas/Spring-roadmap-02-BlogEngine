@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -204,5 +205,44 @@ void getUserById_userNotFound_shouldThrowException() {
         assertEquals("User with id " + id + " not found", ex.getMessage());
         verify(userRepository, times(1)).findById(id);
         verify(userRepository, never()).delete(any(User.class));
+    }
+
+    @Test
+    void updateUser_usernameAlreadyTakenByOtherUser_shouldThrowException() {
+        Long id = 1L;
+        UserRegisterRequest request = new UserRegisterRequest("takenusername", "newpassword");
+        User existingUser = new User();
+        existingUser.setUsername("oldusername");
+        User otherUser = new User();
+        otherUser.setUsername("takenusername");
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUsername("takenusername")).thenReturn(Optional.of(otherUser));
+
+        UserWithUsernameException ex = assertThrows(
+                UserWithUsernameException.class, () -> userService.updateUser(id, request));
+
+        assertEquals("User with username takenusername already exists", ex.getMessage());
+        verify(userRepository, never()).save(any(User.class));
+        verify(encoder, never()).encode(anyString());
+    }
+
+    @Test
+    void updateUser_sameUsername_shouldNotThrowAndSaveSuccessfully() {
+        Long id = 1L;
+        UserRegisterRequest request = new UserRegisterRequest("sameuser", "newpassword");
+        User existingUser = new User();
+        existingUser.setUsername("sameuser");
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(encoder.encode(request.password())).thenReturn("encodedpassword");
+        when(userRepository.save(any(User.class))).thenReturn(existingUser);
+        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(id, "sameuser", Role.ROLE_USER));
+
+        UserResponse result = userService.updateUser(id, request);
+
+        assertNotNull(result);
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(userRepository, never()).findByUsername(anyString());
     }
 }

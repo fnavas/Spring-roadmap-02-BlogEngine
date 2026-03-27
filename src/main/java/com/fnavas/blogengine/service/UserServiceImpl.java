@@ -84,6 +84,11 @@ public class UserServiceImpl implements UserService {
             log.warn("[updateUser]-Service user with username {} not found", userRequest.username());
             return new UserNotFoundException("User with username " + userRequest.username() + " not found");
         });
+        if (!userRequest.username().equals(user.getUsername())
+                && userRepository.findByUsername(userRequest.username()).isPresent()) {
+            log.warn("[updateUser]-Service user with username {} already exists", userRequest.username());
+            throw new UserWithUsernameException("User with username " + userRequest.username() + " already exists");
+        }
         user.setUsername(userRequest.username());
         user.setPassword(encoder.encode(userRequest.password()));
         User updatedUser = userRepository.save(user);
