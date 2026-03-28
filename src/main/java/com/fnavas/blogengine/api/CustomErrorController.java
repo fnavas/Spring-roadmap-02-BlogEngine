@@ -1,6 +1,7 @@
 package com.fnavas.blogengine.api;
 
 import com.fnavas.blogengine.exception.ErrorResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @Slf4j
+@Hidden
 public class CustomErrorController implements ErrorController {
 
     @RequestMapping("/error")
