@@ -1,6 +1,7 @@
 package com.fnavas.blogengine.service;
 
 import com.fnavas.blogengine.dto.request.PostCreateRequest;
+import com.fnavas.blogengine.dto.request.PostFilter;
 import com.fnavas.blogengine.dto.response.PostDetailResponse;
 import com.fnavas.blogengine.dto.response.PostResponse;
 import org.springframework.data.domain.Page;
@@ -65,7 +66,7 @@ class PostServiceImplTest {
                 .toResponse(any(Post.class)))
                 .thenReturn(new PostResponse(null, null, null, null, null));
 
-        Page<PostResponse> postResponses = postService.getAllPosts(null, null, Pageable.unpaged());
+        Page<PostResponse> postResponses = postService.getAllPosts(new PostFilter(null, null), Pageable.unpaged());
 
         assertEquals(4, postResponses.getTotalElements());
         verify(postRepository, Mockito.times(1)).findAll(any(Specification.class), any(Pageable.class));

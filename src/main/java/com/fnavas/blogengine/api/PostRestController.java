@@ -1,6 +1,7 @@
 package com.fnavas.blogengine.api;
 
 import com.fnavas.blogengine.dto.request.PostCreateRequest;
+import com.fnavas.blogengine.dto.request.PostFilter;
 import com.fnavas.blogengine.dto.response.PostDetailResponse;
 import com.fnavas.blogengine.dto.response.PostResponse;
 import com.fnavas.blogengine.exception.ErrorResponse;
@@ -43,14 +44,11 @@ public class PostRestController {
     @SecurityRequirements
     @GetMapping
     public ResponseEntity<Page<PostResponse>> getAllPosts(
-            @Parameter(description = "Filter by author username (partial match)", example = "fnavas")
-            @RequestParam(required = false) String author,
-            @Parameter(description = "Filter by post title (partial match)", example = "Spring")
-            @RequestParam(required = false) String title,
+            @ModelAttribute PostFilter filter,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("[getAllPosts]-RestController request to get all posts");
-        log.debug("[getAllPosts]-RestController request to get all posts by author: {}", author);
-        return ResponseEntity.ok().body(postService.getAllPosts(author, title, pageable));
+        log.debug("[getAllPosts]-RestController request to get all posts with filter: {}", filter);
+        return ResponseEntity.ok().body(postService.getAllPosts(filter, pageable));
     }
 
     @Operation(

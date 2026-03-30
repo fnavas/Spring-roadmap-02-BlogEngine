@@ -2,8 +2,10 @@ package com.fnavas.blogengine.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fnavas.blogengine.dto.request.PostCreateRequest;
+import com.fnavas.blogengine.dto.request.PostFilter;
 import com.fnavas.blogengine.dto.response.PostDetailResponse;
 import com.fnavas.blogengine.dto.response.PostResponse;
+import com.fnavas.blogengine.exception.PostNotFoundException;
 import com.fnavas.blogengine.security.CustomAccessDeniedHandler;
 import com.fnavas.blogengine.security.CustomAuthEntryPoint;
 import com.fnavas.blogengine.service.JwtService;
@@ -70,7 +72,7 @@ class PostRestControllerTest {
     @Test
     @WithMockUser
     void getAllPosts_shouldReturnsOk() throws Exception {
-        Mockito.when(postService.getAllPosts(isNull(), isNull(), any(Pageable.class))).thenReturn(samplePostPage());
+        Mockito.when(postService.getAllPosts(any(PostFilter.class), any(Pageable.class))).thenReturn(samplePostPage());
 
         mockMvc.perform(get("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -97,11 +99,10 @@ class PostRestControllerTest {
     @Test
     @WithMockUser
     void getPostsByAuthor_shouldReturnOk() throws Exception {
-        String author = "author";
-        Mockito.when(postService.getAllPosts(eq(author), isNull(), any(Pageable.class))).thenReturn(samplePostPage());
+        Mockito.when(postService.getAllPosts(any(PostFilter.class), any(Pageable.class))).thenReturn(samplePostPage());
 
         mockMvc.perform(get("/api/v1/posts")
-                .param("author", author)
+                .param("author", "author")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.size()").value(1));
@@ -110,11 +111,10 @@ class PostRestControllerTest {
     @Test
     @WithMockUser
     void getPostsByTitle_shouldReturnOk() throws Exception {
-        String title = "title";
-        Mockito.when(postService.getAllPosts(isNull(), eq(title), any(Pageable.class))).thenReturn(samplePostPage());
+        Mockito.when(postService.getAllPosts(any(PostFilter.class), any(Pageable.class))).thenReturn(samplePostPage());
 
         mockMvc.perform(get("/api/v1/posts")
-                .param("title", title)
+                .param("title", "title")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.size()").value(1));
@@ -187,6 +187,32 @@ class PostRestControllerTest {
     @WithMockUser(roles = {"USER"})
     void createPost_withBlankContent_shouldReturn400() throws Exception {
         PostCreateRequest request = new PostCreateRequest("Some title", "");
+
+        mockMvc.perform(post("/api/v1/posts")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser
+    void getPostById_notFound_shouldReturn404() throws Exception {
+        Long id = 999L;
+        Mockito.when(postService.getPostById(id)).thenThrow(new PostNotFoundException("Post not found with id: " + id));
+
+        mockMvc.perform(get("/api/v1/posts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(404))
+                .andExpect(jsonPath("$.error").value("Post Not Found"));
+    }
+
+    @Test
+    @WithMockUser(roles = {"USER"})
+    void createPost_withTitleTooLong_shouldReturn400() throws Exception {
+        String longTitle = "A".repeat(256);
+        PostCreateRequest request = new PostCreateRequest(longTitle, "Some content");
 
         mockMvc.perform(post("/api/v1/posts")
                 .with(csrf())

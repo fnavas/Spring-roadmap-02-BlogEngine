@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fnavas.blogengine.dto.request.UserRegisterRequest;
 import com.fnavas.blogengine.dto.response.UserResponse;
 import com.fnavas.blogengine.entity.Role;
+import com.fnavas.blogengine.exception.UserNotFoundException;
+import com.fnavas.blogengine.exception.UserWithUsernameException;
 import com.fnavas.blogengine.security.CustomAccessDeniedHandler;
 import com.fnavas.blogengine.security.CustomAuthEntryPoint;
 import com.fnavas.blogengine.service.JwtService;
@@ -168,5 +170,34 @@ class UserRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser
+    void getUserById_notFound_shouldReturn404() throws Exception {
+        Long id = 999L;
+        Mockito.when(userService.getUserById(id)).thenThrow(new UserNotFoundException("User not found with id: " + id));
+
+        mockMvc.perform(get("/api/v1/users/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(404))
+                .andExpect(jsonPath("$.error").value("User Not Found"));
+    }
+
+    @Test
+    @WithMockUser
+    void createUser_withDuplicateUsername_shouldReturn409() throws Exception {
+        UserRegisterRequest request = new UserRegisterRequest("existinguser", "password");
+        Mockito.when(userService.createUser(any(UserRegisterRequest.class)))
+                .thenThrow(new UserWithUsernameException("User with username existinguser already exists"));
+
+        mockMvc.perform(post("/api/v1/users")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value(409))
+                .andExpect(jsonPath("$.error").value("User Already Exists"));
     }
 }

@@ -1,6 +1,7 @@
 package com.fnavas.blogengine.service;
 
 import com.fnavas.blogengine.dto.request.PostCreateRequest;
+import com.fnavas.blogengine.dto.request.PostFilter;
 import com.fnavas.blogengine.dto.response.PostDetailResponse;
 import com.fnavas.blogengine.dto.response.PostResponse;
 import com.fnavas.blogengine.entity.Post;
@@ -35,22 +36,25 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PostResponse> getAllPosts(String author, String title, Pageable pageable) {
+    public Page<PostResponse> getAllPosts(PostFilter filter, Pageable pageable) {
         log.info("[getAllPosts]-Service request to get all posts");
-        Specification<Post> spec = Specification.where((root, query, cb) ->  cb.conjunction());
-        if (author != null && !author.isBlank()) {
-            log.info("[getAllPosts]-Service request to get all posts by author");
-            log.debug("[getAllPosts]-Service request to get all posts by author: {}", author);
+        log.debug("[getAllPosts]-Service request to get all posts with filter: {}", filter);
+        Specification<Post> spec = Specification.where((root, query, cb) -> cb.conjunction());
+
+        if (filter.author() != null && !filter.author().isBlank()) {
+            log.info("[getAllPosts]-Service filtering by author");
             spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.like(criteriaBuilder.lower(root.get("author").get("username")), "%" + author.toLowerCase() + "%"));
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("author").get("username")),
+                            "%" + filter.author().toLowerCase() + "%"));
         }
 
-        if (title != null && !title.isBlank()) {
-            log.info("[getAllPosts]-Service request to get all posts by title");
-            log.debug("[getAllPosts]-Service request to get all posts by title: {}", title);
+        if (filter.title() != null && !filter.title().isBlank()) {
+            log.info("[getAllPosts]-Service filtering by title");
             spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("title")),
+                            "%" + filter.title().toLowerCase() + "%"));
         }
+
         Page<Post> posts = postRepository.findAll(spec, pageable);
         log.debug("[getAllPosts]-Service get all posts count: {}", posts.getTotalElements());
         return posts.map(postMapper::toResponse);
