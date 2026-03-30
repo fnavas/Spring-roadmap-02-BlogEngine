@@ -34,4 +34,6 @@ jobs:
 
       # 4. Compile and run all tests (-B = batch mode, cleaner CI logs)
       - name: Build and test
-        run: ./mvnw -B clean test
+        run: |
+          chmod +x mvnw
+          ./mvnw -B clean test
