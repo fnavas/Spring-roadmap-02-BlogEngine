@@ -1,0 +1,37 @@
+name: CI
+
+# Triggers: run on every push or pull request targeting main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    # Free GitHub-hosted Ubuntu runner
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clone the repository into the runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Install Java 17 (Temurin = open-source AdoptOpenJDK distribution)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Cache Maven dependencies to avoid re-downloading on every run
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # 4. Compile and run all tests (-B = batch mode, cleaner CI logs)
+      - name: Build and test
+        run: ./mvnw -B clean test
