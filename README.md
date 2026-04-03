@@ -63,12 +63,28 @@ Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 All seeded users share the same password: `1234`
 
-| Username | Password | Role |
-|----------|----------|------|
-| `admin`  | `1234` | ADMIN |
-| `fnavas` | `1234` | USER  |
-| `sarah_jenkins` | `1234` | USER  |
-| `michael_smith` | `1234` | USER  |
+| Username | Role |
+|----------|------|
+| `admin` | ADMIN |
+| `fnavas` | USER |
+| `sarah_jenkins` | USER |
+| `michael_smith` | USER |
+| `emily_rose` | USER |
+| `david_miller` | USER |
+| `jessica_vance` | USER |
+| `ryan_cooper` | USER |
+| `olivia_p` | USER |
+| `kevin_dev` | USER |
+| `linda_blair` | USER |
+| `brian_foster` | USER |
+| `megan_fox` | USER |
+| `chris_evans` | USER |
+| `sophia_lane` | USER |
+| `peter_parker` | USER |
+| `anna_scott` | USER |
+| `robert_downey` | USER |
+| `lucy_liu` | USER |
+| `tom_hanks` | USER |
 
 **Stop the database:**
 ```bash

@@ -18,10 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/posts/{postId}/comments")
@@ -70,7 +71,9 @@ public class CommentRestController {
             @Parameter(description = "Post ID", example = "1") @PathVariable Long postId,
             @Valid @RequestBody CommentRequest request) {
         log.info("[createComment]-RestController request to create comment for postId: {}", postId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.createComment(postId, request));
+        CommentResponse created = commentService.createComment(postId, request);
+        URI location = URI.create(String.format("/api/v1/posts/%s/comments/%s", postId, created.id()));
+        return ResponseEntity.created(location).body(created);
     }
 
     @Operation(
